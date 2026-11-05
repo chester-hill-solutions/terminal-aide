@@ -1,12 +1,40 @@
-# Terminal Aide
+<div align="center">
 
-[![CI](https://github.com/chester-hill-solutions/terminal-aide/actions/workflows/ci.yml/badge.svg)](https://github.com/chester-hill-solutions/terminal-aide/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/@chester-hill-solutions/terminal-aide)](https://www.npmjs.com/package/@chester-hill-solutions/terminal-aide)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+<h1>Terminal Aide</h1>
 
-**Plain English → Bash → your confirmation.** A small, open-source terminal assistant from [Chester Hill Solutions](https://github.com/chester-hill-solutions).
+<p><strong>Plain English → Bash → your confirmation.</strong></p>
 
-Type what you want to do. North Mini Code explains and proposes a Bash command, and `aide` asks for `y` before running it. Enter defaults to no.
+<p>
+<a href="https://www.npmjs.com/package/@chester-hill-solutions/terminal-aide"><img src="https://img.shields.io/npm/v/@chester-hill-solutions/terminal-aide?style=flat-square&amp;color=3fb68b" alt="npm version"></a>
+<a href="https://github.com/chester-hill-solutions/terminal-aide/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/chester-hill-solutions/terminal-aide/ci.yml?branch=main&amp;style=flat-square&amp;label=CI" alt="CI"></a>
+<a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js-22%2B-3fb68b?style=flat-square" alt="Node.js 22+"></a>
+<a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-3fb68b?style=flat-square" alt="MIT license"></a>
+</p>
+
+<p>A small, open-source terminal assistant powered by
+<a href="https://openrouter.ai/cohere/north-mini-code:free">North Mini Code</a> through OpenRouter.</p>
+
+<p>
+<a href="#quick-start">Quick start</a> ·
+<a href="#usage">Usage</a> ·
+<a href="#saved-rules">Saved rules</a> ·
+<a href="#execution-and-privacy">Execution &amp; privacy</a> ·
+<a href="CONTRIBUTING.md">Contribute</a>
+</p>
+
+<img src="https://raw.githubusercontent.com/chester-hill-solutions/terminal-aide/main/.github/assets/terminal-preview.svg" alt="Example terminal session: ask for a folder size breakdown, review du -h -d 1 . | sort -hr, then confirm at Run it? y/[n]: before seeing the output." width="880">
+
+<p><sub>Illustrative session. Commands are generated for each request.<br>A temporary spinner clears when the proposal is ready.</sub></p>
+
+</div>
+
+| Preview the plan | Keep the final say | Make it yours |
+| :--- | :--- | :--- |
+| Read the explanation and complete Bash command. Use `--dry-run` for a proposal only. | Explicit `y/[n]` confirmation. Enter cancels. No automatic approval flag. | Save global and project rules, selected locally within an 8-rule / 2,000-byte budget. |
+
+## Quick start
+
+Install, add your [OpenRouter API key](https://openrouter.ai/settings/keys), and ask:
 
 ```bash
 npm install --global @chester-hill-solutions/terminal-aide
@@ -14,56 +42,12 @@ export AIDE_OPENROUTER_API_KEY='your-openrouter-key'
 aide give me a size breakdown of the current folder
 ```
 
-```text
-Shows each immediate subfolder and the total, largest first.
+**Requires Node.js 22+, macOS or Linux, and `/bin/bash`.** Bring your existing terminal, SSH configuration, and command-line tools. The model is [`cohere/north-mini-code:free`](https://openrouter.ai/cohere/north-mini-code:free); endpoint availability and request limits depend on OpenRouter.
 
-du -h -d 1 . | sort -hr
+<details>
+<summary><strong>API key setup and running without an install</strong></summary>
 
-Run it? y/[n]:
-```
-
-Requires Node.js 22+, macOS or Linux, `/bin/bash`, and your own [OpenRouter API key](https://openrouter.ai/settings/keys). The model is [`cohere/north-mini-code:free`](https://openrouter.ai/cohere/north-mini-code:free); endpoint availability and request limits depend on OpenRouter.
-
-- Preview commands before running; use `--dry-run` for a proposal only.
-- Save global and project preferences, selected locally with an 8-rule / 2,000-byte context cap.
-- Inspect rule selection without contacting a model.
-- Keep your existing terminal, SSH configuration, and command-line tools.
-
-## Example: copy the newest download
-
-```text
-$ aide scp to 192.0.2.38 the newest file in downloads to documents/frank
-
-Find the most recently modified regular file in ~/Downloads and copy it with scp
-to documents/frank/ under the remote home directory on 10.0.0.38, using your
-configured SSH username.
-
-<the generated Bash command appears here in bold>
-
-Warning: Transfers a file to another machine and may overwrite a same-named file.
-
-Run it? y/[n]:
-```
-
-An animated [cli-spinners](https://github.com/sindresorhus/cli-spinners) indicator appears while the model is working and clears before the proposal. The command is generated for each request. The transcript above illustrates the flow; it is not a recorded model response.
-
-## Setup
-
-Requires **Node.js 22+**, **macOS or Linux**, and `/bin/bash`.
-
-Install the public npm package:
-
-```bash
-npm install --global @chester-hill-solutions/terminal-aide
-```
-
-Create an [OpenRouter API key](https://openrouter.ai/settings/keys) and export it in your terminal:
-
-```bash
-export AIDE_OPENROUTER_API_KEY='your-key-here'
-```
-
-Add that export to your shell configuration if you want it available in future terminal sessions. Aide reads the environment variable; it does not load `.env` files. Keep the key out of source control.
+Add the export to your shell configuration if you want it available in future terminal sessions. Aide reads the environment variable; it does not load `.env` files. Keep the key out of source control.
 
 `AIDE_OPENROUTER_API_KEY` is specific to Aide and takes precedence over the shared `OPENROUTER_API_KEY` variable. If the Aide-specific variable is unset or blank, Aide falls back to `OPENROUTER_API_KEY`.
 
@@ -78,6 +62,8 @@ You can also run it without a global installation:
 ```bash
 npx --package=@chester-hill-solutions/terminal-aide aide --dry-run "list the largest files in this folder"
 ```
+
+</details>
 
 ## Usage
 
@@ -130,7 +116,13 @@ The files are JSON arrays you can edit directly. Existing string entries use aut
 
 Managing and inspecting rules works without an API key. Project rules take precedence over global rules; newer rules take precedence within a scope, and a specific instruction in the current request takes precedence over saved preferences. A tool preference applies to tasks that tool supports—for example, `zipgrep` searches inside ZIP archives. Rules guide generation rather than mechanically rewriting shell commands, and execution still requires `y`.
 
-## SCP example details
+## Example: copy the newest download
+
+```bash
+aide scp to 192.0.2.38 the newest file in downloads to documents/frank
+```
+
+Aide proposes a command to select the newest regular file in `~/Downloads` and copy it to the remote directory with `scp`. Review the paths and any overwrite warning before confirming.
 
 - “Newest” means most recently modified regular file directly inside the local `~/Downloads` folder, including hidden files. Directories are excluded, and an empty folder should stop the command.
 - `192.0.2.38:documents/frank/` is a directory relative to the remote user's home. Paths are case sensitive; `documents` and `Documents` may differ. This is a documentation address; substitute your server's address.
@@ -172,4 +164,10 @@ If your environment maps `@chester-hill-solutions` to GitHub Packages, this pack
 
 ## License
 
-[MIT](LICENSE). Copyright Chester Hill Solutions and contributors.
+[MIT](LICENSE). Built by [Chester Hill Solutions](https://github.com/chester-hill-solutions), open to everyone.
+
+<div align="center">
+
+[Report a bug](https://github.com/chester-hill-solutions/terminal-aide/issues/new?template=bug_report.yml) · [Request a feature](https://github.com/chester-hill-solutions/terminal-aide/issues/new?template=feature_request.yml) · [Release notes](https://github.com/chester-hill-solutions/terminal-aide/releases)
+
+</div>

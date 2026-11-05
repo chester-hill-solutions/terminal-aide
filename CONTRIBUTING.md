@@ -37,6 +37,6 @@ git push origin main --follow-tags
 
 The release workflow validates the package, publishes a missing version to the public npm registry using npm trusted publishing, and creates a GitHub release with the installable tarball. Already-published versions are left intact.
 
-The npm package's trusted publisher must identify GitHub organization `chester-hill-solutions`, repository `terminal-aide`, and workflow `release.yml`. Configure it through npm package settings or `npm trust github --repo chester-hill-solutions/terminal-aide --file release.yml --allow-publish @chester-hill-solutions/terminal-aide` using npm authentication that supports trust administration. No long-lived npm token is stored in GitHub Actions.
+The npm package's trusted publisher is configured for GitHub organization `chester-hill-solutions`, repository `terminal-aide`, and workflow `release.yml`. Tagged releases authenticate through GitHub Actions OIDC; no long-lived npm token is stored in GitHub Actions. If this trust needs to be restored, use npm package settings or `npm trust github @chester-hill-solutions/terminal-aide --repo chester-hill-solutions/terminal-aide --file release.yml --allow-publish` with npm authentication that supports trust administration.
 
 For the first release or a manual recovery, a maintainer with package publishing permission can run `npm publish --access public` before pushing the version tag. The checked-in `.npmrc` and `publishConfig` target `https://registry.npmjs.org`.
