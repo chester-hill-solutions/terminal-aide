@@ -1,0 +1,37 @@
+{
+  "name": "@chester-hill-solutions/terminal-aide",
+  "version": "0.1.0",
+  "description": "Plain English to Bash: preview the command, then confirm with y/[n]. Powered by North Mini Code through OpenRouter.",
+  "author": { "name": "Chester Hill Solutions", "url": "https://github.com/chester-hill-solutions" },
+  "homepage": "https://github.com/chester-hill-solutions/terminal-aide#readme",
+  "repository": { "type": "git", "url": "git+https://github.com/chester-hill-solutions/terminal-aide.git" },
+  "bugs": { "url": "https://github.com/chester-hill-solutions/terminal-aide/issues" },
+  "keywords": ["cli", "terminal", "bash", "shell", "ai", "natural-language", "command-line", "openrouter", "cohere", "north-mini-code", "developer-tools", "macos", "linux"],
+  "publishConfig": { "registry": "https://registry.npmjs.org", "access": "public" },
+  "os": ["darwin", "linux"],
+  "type": "module",
+  "bin": {
+    "aide": "bin/aide.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node bin/aide.js",
+    "test": "node --test",
+    "check": "node --check bin/aide.js && node --check src/cli.js && node --check src/openrouter.js && node --check src/shell.js && node --check src/terminal.js && node --check src/rules.js && node --check src/rule-selection.js && node --check src/rule-context.js",
+    "pack:check": "node scripts/check-package.mjs",
+    "prepublishOnly": "npm run check && npm test && npm run pack:check"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "cli-spinners": "3.4.0"
+  }
+}

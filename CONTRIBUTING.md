@@ -1,0 +1,42 @@
+# Contributing
+
+Issues and pull requests are welcome at [chester-hill-solutions/terminal-aide](https://github.com/chester-hill-solutions/terminal-aide).
+
+## Local development
+
+Use Node.js 22 or later on macOS or Linux:
+
+```bash
+npm ci --ignore-scripts
+npm run check
+npm test
+npm run pack:check
+npm start -- --help
+```
+
+Tests run offline using model fixtures and disposable local directories. An API key is only needed for an intentional live preview. Do not put keys, personal rules, captured user requests, or environment files in a commit or issue.
+
+Keep modules small and use native Node.js APIs where practical. Preserve the exact proposed command through display, syntax checking, confirmation, and execution. Changes to approval, input handling, model parsing, or credentials need regression tests that exercise the actual boundary.
+
+The package checker enforces an allowlist for npm artifacts. Development captures and personal configuration stay outside published source and tarballs.
+
+## Pull requests
+
+Explain the concrete problem and the resulting behavior, then list the checks you ran. For a terminal presentation change, include a short sanitized transcript and check a narrow terminal, plain output, cancellation, and the default-no prompt. Report model-response bugs with a sanitized shape or fixture; never include authorization headers or hidden model reasoning.
+
+Please follow the [community conduct guidelines](CODE_OF_CONDUCT.md). Report vulnerabilities using the [security policy](SECURITY.md).
+
+## Releases
+
+Maintainers use a version in `package.json` matching the `v` tag. `aide --version` reads that manifest.
+
+```bash
+npm version patch
+git push origin main --follow-tags
+```
+
+The release workflow validates the package, publishes a missing version to the public npm registry using npm trusted publishing, and creates a GitHub release with the installable tarball. Already-published versions are left intact.
+
+The npm package's trusted publisher must identify GitHub organization `chester-hill-solutions`, repository `terminal-aide`, and workflow `release.yml`. Configure it through npm package settings or `npm trust github --repo chester-hill-solutions/terminal-aide --file release.yml --allow-publish @chester-hill-solutions/terminal-aide` using npm authentication that supports trust administration. No long-lived npm token is stored in GitHub Actions.
+
+For the first release or a manual recovery, a maintainer with package publishing permission can run `npm publish --access public` before pushing the version tag. The checked-in `.npmrc` and `publishConfig` target `https://registry.npmjs.org`.

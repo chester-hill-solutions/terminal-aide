@@ -1,0 +1,31 @@
+name: Bug report
+description: Report a reproducible problem with aide.
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Aide version
+      description: Output of aide --version.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Node.js version, operating system, and terminal.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction and observed behavior
+      description: Include a minimal sanitized request and transcript. Remove keys, authorization headers, and personal information.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true

@@ -1,0 +1,17 @@
+name: Feature request
+description: Suggest an improvement to the terminal workflow.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What task are you trying to complete?
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Proposed behavior
+      description: A short example command or transcript helps.
+    validations:
+      required: true
