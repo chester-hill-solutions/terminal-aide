@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Wait for npm to finish processing an accepted publication before verifying release artifacts, with bounded polling and no repeated publish.
+
 ## 0.1.1 — 2026-11-05
 
 - Refresh the README with status badges, terminal artwork, quick links, and a simpler quick start.
