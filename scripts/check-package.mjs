@@ -10,7 +10,7 @@ const result = spawnSync('npm', ['pack', '--dry-run', '--json', '--ignore-script
 });
 assert.equal(result.status, 0, result.stderr || 'npm pack failed');
 const [archive] = JSON.parse(result.stdout);
-const allowed = new Set(['package.json', 'README.md', 'LICENSE', 'CHANGELOG.md']);
+const allowed = new Set(['package.json', 'README.md', 'LICENSE', 'docs/CHANGELOG.md']);
 for (const { path } of archive.files) {
   assert.ok(allowed.has(path) || /^(bin|src)\/[a-zA-Z0-9_./-]+\.js$/.test(path), `Unexpected published file: ${path}`);
   const text = readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');

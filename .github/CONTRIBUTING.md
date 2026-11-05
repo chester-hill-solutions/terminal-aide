@@ -20,6 +20,20 @@ Keep modules small and use native Node.js APIs where practical. Preserve the exa
 
 The package checker enforces an allowlist for npm artifacts. Development captures and personal configuration stay outside published source and tarballs.
 
+## Repository layout
+
+```text
+.github/         Community policies, issue templates, artwork, and workflows
+bin/             Executable entry point
+docs/            Changelog and environment variable reference
+scripts/         Syntax, packaging, and release checks
+src/             CLI, OpenRouter, shell, and terminal modules
+  rules/         Rule management, selection, and project context
+test/            Offline tests, with rules tests grouped under rules/
+```
+
+Keep the root limited to README, LICENSE, npm manifests, and required dotfiles. Group related source and tests by feature. Put personal captures, generated previews, and scratch work in `.local/`, which Git ignores and npm excludes. The syntax check discovers JavaScript files recursively in `bin/`, `src/`, `scripts/`, and `test/`.
+
 ## Pull requests
 
 Explain the concrete problem and the resulting behavior, then list the checks you ran. For a terminal presentation change, include a short sanitized transcript and check a narrow terminal, plain output, cancellation, and the default-no prompt. Report model-response bugs with a sanitized shape or fixture; never include authorization headers or hidden model reasoning.

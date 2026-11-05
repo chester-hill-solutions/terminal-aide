@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Group rules source and tests by feature, move supporting documentation out of the repository root, and discover syntax checks recursively. Command behavior is unchanged.
+
 ## 0.1.0 — 2026-11-05
 
 Initial public release under `@chester-hill-solutions/terminal-aide`.

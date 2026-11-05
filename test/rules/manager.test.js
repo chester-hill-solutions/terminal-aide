@@ -3,7 +3,7 @@ import { mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promise
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { loadRules, manageRules, parseRulesArgs, rulesFile, saveRules, validateRules } from '../src/rules.js';
+import { loadRules, manageRules, parseRulesArgs, rulesFile, saveRules, validateRules } from '../../src/rules/manager.js';
 
 test('rules live in the global config directory, with an absolute XDG override', () => {
   assert.equal(rulesFile({ env: {}, home: '/home/test' }), '/home/test/.config/terminal-aide/rules.json');

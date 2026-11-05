@@ -19,7 +19,7 @@
 <a href="#usage">Usage</a> ·
 <a href="#saved-rules">Saved rules</a> ·
 <a href="#execution-and-privacy">Execution &amp; privacy</a> ·
-<a href="CONTRIBUTING.md">Contribute</a>
+<a href="https://github.com/chester-hill-solutions/terminal-aide/blob/main/.github/CONTRIBUTING.md">Contribute</a>
 </p>
 
 <img src="https://raw.githubusercontent.com/chester-hill-solutions/terminal-aide/main/.github/assets/terminal-preview.svg" alt="Example terminal session: ask for a folder size breakdown, review du -h -d 1 . | sort -hr, then confirm at Run it? y/[n]: before seeing the output." width="880">
@@ -48,6 +48,8 @@ aide give me a size breakdown of the current folder
 <summary><strong>API key setup and running without an install</strong></summary>
 
 Add the export to your shell configuration if you want it available in future terminal sessions. Aide reads the environment variable; it does not load `.env` files. Keep the key out of source control.
+
+The [environment variable reference](https://github.com/chester-hill-solutions/terminal-aide/blob/main/docs/environment.example) lists the supported key variables.
 
 `AIDE_OPENROUTER_API_KEY` is specific to Aide and takes precedence over the shared `OPENROUTER_API_KEY` variable. If the Aide-specific variable is unset or blank, Aide falls back to `OPENROUTER_API_KEY`.
 
@@ -158,7 +160,7 @@ npm link
 
 Tests use mocked OpenRouter responses and real local Bash processes. They cover explicit confirmation, preview mode, clarification, invalid responses, API failures, cancellation, piped input, startup-hook isolation, and exit codes. They do not contact OpenRouter or perform real network transfers.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development and releases, [SECURITY.md](SECURITY.md) for private vulnerability reporting, and [CHANGELOG.md](CHANGELOG.md) for release notes. Contributions and reproducible bug reports are welcome.
+See the [contributing guide](https://github.com/chester-hill-solutions/terminal-aide/blob/main/.github/CONTRIBUTING.md) for development, repository layout, and releases; the [security policy](https://github.com/chester-hill-solutions/terminal-aide/blob/main/.github/SECURITY.md) for private vulnerability reporting; and the [changelog](https://github.com/chester-hill-solutions/terminal-aide/blob/main/docs/CHANGELOG.md) for release notes. Contributions and reproducible bug reports are welcome.
 
 If your environment maps `@chester-hill-solutions` to GitHub Packages, this package uses the public npm registry instead. The repository's `.npmrc` sets the correct mapping for source installs; a tagged GitHub release also includes an installable npm tarball.
 

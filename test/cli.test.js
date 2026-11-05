@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { parseArgs, runCli } from '../src/cli.js';
 import { proposeCommand } from '../src/openrouter.js';
-import { loadRules, rulesFile, saveRules } from '../src/rules.js';
+import { loadRules, rulesFile, saveRules } from '../src/rules/manager.js';
 
 const proposal = {
   command: "printf '%s\\n' hello",
