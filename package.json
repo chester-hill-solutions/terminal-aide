@@ -1,6 +1,6 @@
 {
   "name": "@chester-hill-solutions/terminal-aide",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Plain English to Bash: preview the command, then confirm with y/[n]. Powered by North Mini Code through OpenRouter.",
   "author": {
     "name": "Chester Hill Solutions",

@@ -1,8 +1,12 @@
 # Changelog
 
-## Unreleased
+## 0.1.1 — 2026-11-05
 
-- Group rules source and tests by feature, move supporting documentation out of the repository root, and discover syntax checks recursively. Command behavior is unchanged.
+- Refresh the README with status badges, terminal artwork, quick links, and a simpler quick start.
+- Group rules source and tests by feature and move supporting documentation out of the repository root.
+- Discover JavaScript syntax checks recursively across source, tests, and release tooling.
+
+Command behavior is unchanged.
 
 ## 0.1.0 — 2026-11-05
 
