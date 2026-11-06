@@ -1,4 +1,4 @@
-import { validatePromptRules } from './rule-selection.js';
+import { validatePromptRules } from './rules/selection.js';
 
 export const MODEL = 'cohere/north-mini-code:free';
 export const ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';

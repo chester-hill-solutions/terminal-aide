@@ -3,9 +3,9 @@ import { mkdir, mkdtemp, realpath, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { inspectRules, loadRuleContext, projectRulesFile } from '../src/rule-context.js';
-import { rulesFile, saveRules } from '../src/rules.js';
-import { selectRules } from '../src/rule-selection.js';
+import { inspectRules, loadRuleContext, projectRulesFile } from '../../src/rules/context.js';
+import { rulesFile, saveRules } from '../../src/rules/manager.js';
+import { selectRules } from '../../src/rules/selection.js';
 
 test('project rules work from subdirectories and remain separate from a sibling project', async () => {
   const temporary = await mkdtemp(join(tmpdir(), 'aide-project-rules-'));

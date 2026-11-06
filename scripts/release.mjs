@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
+import { setTimeout as delay } from 'node:timers/promises';
 
 const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 const tag = process.argv[2];
@@ -11,7 +12,13 @@ let response = await fetch(endpoint);
 if (response.status === 404) {
   const publish = spawnSync('npm', ['publish', '--access', 'public', '--provenance', '--ignore-scripts'], { stdio: 'inherit' });
   assert.equal(publish.status, 0, 'npm publish failed');
-  response = await fetch(endpoint);
+  // npm can return 404 for several minutes after accepting a new version.
+  for (let attempt = 0; attempt < 30; attempt++) {
+    response = await fetch(endpoint);
+    if (response.status !== 404 || attempt === 29) break;
+    console.log('Waiting for npm to finish processing the published version…');
+    await delay(10000);
+  }
 } else {
   console.log(`Checking already-published ${manifest.name}@${manifest.version}.`);
 }

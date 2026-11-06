@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { MAX_PROMPT_RULE_BYTES, MAX_PROMPT_RULES, promptRuleBytes, ruleConditions, selectRules, validatePromptRules } from '../src/rule-selection.js';
+import { MAX_PROMPT_RULE_BYTES, MAX_PROMPT_RULES, promptRuleBytes, ruleConditions, selectRules, validatePromptRules } from '../../src/rules/selection.js';
 
 const entry = (rule, index = 0, scope = 'global') => ({ rule, index, scope });
 
