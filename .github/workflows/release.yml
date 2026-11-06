@@ -27,7 +27,7 @@ jobs:
       - run: npm install --global npm@11
       - run: npm ci --ignore-scripts
       - run: npm run check
-      - run: npm test
+      - run: npm run test:coverage
       - run: npm run pack:check
       - name: Publish or retrieve the immutable npm release
         run: node scripts/release.mjs "$GITHUB_REF_NAME"

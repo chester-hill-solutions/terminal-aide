@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { ENDPOINT, MODEL, proposeCommand, validateProposal, visibleText } from '../src/openrouter.js';
+import { ENDPOINT, GENERATION, MODEL, proposeCommand, validateProposal, visibleText } from '../src/openrouter.js';
 
 const proposal = { command: 'pwd', explanation: 'Show the working directory.', warnings: [], clarification: null };
 const envelope = (value = proposal) => ({
@@ -11,7 +11,7 @@ const envelope = (value = proposal) => ({
 });
 const options = { request: 'where am I', context: { os: 'macOS', cwd: '/tmp', home: '/home/test' }, apiKey: 'test-secret' };
 
-test('requests the exact North Mini Code model and a proposal tool, without unsupported response_format', async () => {
+test('requests exactly North Mini Code and a proposal tool, without unsupported response_format', async () => {
   const result = await proposeCommand({ ...options, fetchImpl: async (url, init) => {
     assert.equal(url, ENDPOINT);
     assert.equal(init.headers.Authorization, 'Bearer test-secret');
@@ -19,9 +19,12 @@ test('requests the exact North Mini Code model and a proposal tool, without unsu
     const body = JSON.parse(init.body);
     assert.equal(body.model, MODEL);
     assert.equal(body.model, 'cohere/north-mini-code:free');
-    assert.equal(body.tool_choice.function.name, 'propose_bash_command');
-    assert.equal(body.tools.length, 1);
+    assert.equal(body.tool_choice, 'required');
+    assert.deepEqual(body.tools.map(tool => tool.function.name), ['propose_bash_command', 'count_files_recursive', 'count_matching_lines_recursive', 'copy_single_matching_file', 'request_clarification']);
     assert.equal(body.provider.require_parameters, true);
+    assert.equal(body.temperature, 0);
+    assert.deepEqual(body.reasoning, { enabled: true, exclude: true });
+    assert.equal(body.max_tokens, GENERATION.max_tokens);
     assert.ok(!('response_format' in body));
     assert.ok(!('models' in body), 'no alternate model fallback');
     assert.ok(!init.body.includes('test-secret'));
@@ -37,6 +40,28 @@ test('oversized rule context is rejected before any API request', async () => {
   await assert.rejects(proposeCommand({ ...options, rules: Array(9).fill('a preference'), fetchImpl }), /prompt budget/);
   await assert.rejects(proposeCommand({ ...options, rules: ['é'.repeat(1100)], fetchImpl }), /prompt budget/);
   assert.equal(requests, 0);
+});
+
+test('a truncated proposal gets one bounded recovery request and cannot be executed as partial output', async () => {
+  let requests = 0;
+  const result = await proposeCommand({ ...options, fetchImpl: async () => {
+    requests++;
+    return requests === 1
+      ? Response.json({ choices: [{ finish_reason: 'length', message: { content: 'partial command' } }] })
+      : Response.json(envelope());
+  } });
+  assert.equal(requests, 2);
+  assert.deepEqual(result, proposal);
+});
+
+test('invalid Bash is rejected and regenerated once without executing the bad proposal', async () => {
+  let requests = 0;
+  const result = await proposeCommand({ ...options, fetchImpl: async () => {
+    requests++;
+    return Response.json(envelope(requests === 1 ? { ...proposal, command: 'if then' } : proposal));
+  } });
+  assert.equal(requests, 2);
+  assert.deepEqual(result, proposal);
 });
 
 test('rejects invalid/missing fields, terminal controls, hidden Unicode, and contradictory clarifications', () => {
@@ -79,6 +104,29 @@ test('plain-text JSON still requires every proposal field and rejects hidden ter
   }
 });
 
+test('typed counting calls become validated proposals without executing a command', async () => {
+  const payload = envelope({ directory: '.', pattern: '*.txt', literal: 'TODO' });
+  payload.choices[0].message.tool_calls[0].function.name = 'count_matching_lines_recursive';
+  const result = await proposeCommand({ ...options, fetchImpl: async () => Response.json(payload) });
+  assert.equal(result.clarification, null);
+  assert.deepEqual(result.warnings, []);
+  assert.equal(validateProposal(result), result);
+});
+
+test('typed copy and clarification calls pass through the canonical proposal boundary', async () => {
+  for (const [name, parameters] of [
+    ['copy_single_matching_file', { directory: '.', pattern: '*.txt', destination: 'copy.txt' }],
+    ['request_clarification', { question: 'Which server should receive the file?' }],
+  ]) {
+    const payload = envelope(parameters);
+    payload.choices[0].message.tool_calls[0].function.name = name;
+    const result = await proposeCommand({ ...options, fetchImpl: async () => Response.json(payload) });
+    assert.equal(validateProposal(result), result);
+    if (name === 'request_clarification') assert.equal(result.command, null);
+    else assert.match(result.command, /cp --/);
+  }
+});
+
 test('recovers from a missing proposal with one fresh validated response', async () => {
   let requests = 0;
   const malformedText = 'Not a tool proposal: do not treat this text as a command.';
@@ -91,7 +139,7 @@ test('recovers from a missing proposal with one fresh validated response', async
       requests++;
       const body = JSON.parse(init.body);
       assert.equal(body.model, MODEL);
-      assert.equal(body.tool_choice.function.name, 'propose_bash_command');
+      assert.equal(body.tool_choice, 'required');
       assert.equal(JSON.parse(body.messages.at(-1).content).request, 'square root of the speed of light');
       assert.deepEqual(JSON.parse(body.messages.at(-1).content).followups, [{ question: 'Which units?', answer: 'metres per second' }]);
       assert.deepEqual(JSON.parse(body.messages.at(-1).content).rules, ['use awk for calculations']);

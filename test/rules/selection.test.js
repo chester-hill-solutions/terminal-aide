@@ -60,3 +60,32 @@ test('general rules are never silently dropped to fit the budget', () => {
   assert.throws(() => selectRules([entry({ text: 'x'.repeat(1999), when: 'general' })], 'hello'), /General rules exceed/);
   assert.throws(() => validatePromptRules(Array(9).fill('use grep')), /prompt budget/);
 });
+
+test('negative constraints remain general across punctuation and phrasing', () => {
+  for (const rule of ['Don’t use grep', 'No network transfers', 'Do NOT use sudo',
+    'Use search without uploading files', 'You mustn’t copy files to a remote host', 'Never use curl']) {
+    assert.deepEqual(ruleConditions(rule), ['general'], rule);
+    assert.deepEqual(selectRules([entry(rule)], 'print hello').rules, [rule]);
+  }
+  assert.deepEqual(ruleConditions({ text: 'Do not use grep', when: ['search'] }), ['search'], 'explicit scope is respected');
+});
+
+const paraphrases = {
+  search: ['count occurrences of TODO in source files', 'scan source files for TODO', 'which files contain TODO'],
+  transfer: ['synchronize photos with the server', 'mirror photos to the server', 'sync the backup folder'],
+  sizes: ['how big is this folder', 'show folder footprint', 'how large is this directory'],
+  archive: ['unpack the tarball', 'bundle this folder into a tgz', 'unpack backup.txz'],
+  network: ['show listening sockets', 'what is my public IP address', 'show the external IP'],
+  process: ['terminate the hung application', 'stop the background job', 'terminate the app'],
+  git: ['show uncommitted changes', 'show staged differences', 'show the worktree differences'],
+  packages: ['upgrade outdated libraries', 'remove an unused dependency', 'list installed libraries'],
+  math: ['what is 12 times 4', 'divide 144 by 12', 'what is 8 plus 7'],
+};
+
+for (const [topic, requests] of Object.entries(paraphrases)) {
+  test(`${topic} preferences apply to ordinary paraphrases`, () => {
+    const rule = { text: `Preference for ${topic}`, when: [topic] };
+    for (const request of requests) assert.deepEqual(selectRules([entry(rule)], request).rules, [rule.text], request);
+    assert.deepEqual(selectRules([entry(rule)], 'print hello').rules, [], 'unrelated requests stay unrelated');
+  });
+}
