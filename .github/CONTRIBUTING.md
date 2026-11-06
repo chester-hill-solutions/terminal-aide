@@ -28,14 +28,16 @@ The package checker enforces an allowlist for npm artifacts. Development capture
 ```text
 .github/         Community policies, issue templates, artwork, and workflows
 bin/             Executable entry point
-docs/            Changelog and environment variable reference
-scripts/         Syntax, packaging, and release checks
+docs/            Changelog, environment reference, assessments, and quality workflow
+eval/            Model outcome fixtures, graders, and sandbox execution
+scripts/         Syntax, quality, packaging, evaluation, and release checks
 src/             CLI, OpenRouter, shell, and terminal modules
   rules/         Rule management, selection, and project context
 test/            Offline tests, with rules tests grouped under rules/
+tools/vendor/    Pinned development artifacts and their provenance
 ```
 
-Keep the root limited to README, LICENSE, npm manifests, and required dotfiles. Group related source and tests by feature. Put personal captures, generated previews, and scratch work in `.local/`, which Git ignores and npm excludes. The syntax check discovers JavaScript files recursively in `bin/`, `src/`, `scripts/`, and `test/`.
+Keep the root limited to README, LICENSE, npm manifests, and required dotfiles. Group related source and tests by feature. Put personal captures, generated previews, and scratch work in `.local/`, which Git ignores and npm excludes. The syntax check discovers JavaScript files recursively in `bin/`, `src/`, `scripts/`, `eval/`, and `test/`.
 
 ## Pull requests
 

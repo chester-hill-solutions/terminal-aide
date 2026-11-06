@@ -5,7 +5,8 @@ export function pathArgument(value) {
   for (const prefix of ['~/', '$HOME/', '${HOME}/']) {
     if (value.startsWith(prefix)) return `"$HOME"/${shellQuote(value.slice(prefix.length))}`;
   }
-  return shellQuote(value.startsWith('-') ? `./${value}` : value);
+  // find parses ! and parentheses as expressions even when shell-quoted.
+  return shellQuote(value.startsWith('/') ? value : `./${value}`);
 }
 
 export function validateParameters(value, fields, { empty = [] } = {}) {

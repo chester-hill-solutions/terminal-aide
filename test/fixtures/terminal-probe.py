@@ -7,12 +7,14 @@ import signal
 import sys
 import time
 
+mode = sys.argv[1]
 pid, descriptor = pty.fork()
 if pid == 0:
-    os.execv(sys.argv[1], sys.argv[1:])
+    os.execv(sys.argv[2], sys.argv[2:])
 
 output = bytearray()
 sent = False
+confirmed = False
 reaped = False
 deadline = time.monotonic() + 4
 try:
@@ -29,8 +31,12 @@ try:
         if not chunk:
             break
         output.extend(chunk)
-        if not sent and b'AIDE_TTY_READY' in output:
-            os.write(descriptor, b'terminal-input-works\n')
+        if mode == 'confirm-interrupt' and not confirmed and b'Run it? y/[n]:' in output:
+            os.write(descriptor, b'y\n')
+            confirmed = True
+        ready = output.startswith(b'AIDE_TTY_READY\r\n') or b'\nAIDE_TTY_READY\r\n' in output
+        if not sent and ready:
+            os.write(descriptor, b'\x03' if mode.endswith('interrupt') else b'terminal-input-works\n')
             sent = True
     else:
         raise TimeoutError('Terminal command did not finish')

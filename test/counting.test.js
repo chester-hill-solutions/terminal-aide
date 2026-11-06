@@ -64,6 +64,22 @@ test('counting parameters cannot execute substitutions and home and leading-dash
   } finally { await rm(root, { recursive: true, force: true }); }
 });
 
+test('counting treats find expression tokens as literal directory names', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'aide-count-find-paths-'));
+  try {
+    for (const directory of ['!', '(', ')', ',', '-not']) {
+      await mkdir(join(root, directory));
+      await writeFile(join(root, directory, 'one.txt'), 'TODO\n');
+      for (const name of ['count_files_recursive', 'count_matching_lines_recursive']) {
+        const parameters = { directory, pattern: '*.txt', ...(name.includes('lines') ? { literal: 'TODO' } : {}) };
+        const result = run(name, parameters, root);
+        assert.equal(result.status, 0, `${directory}: ${result.stderr}`);
+        assert.equal(result.stdout.trim(), '1');
+      }
+    }
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
 test('counting proposals reject malformed arguments and missing search roots fail rather than count as zero', () => {
   for (const input of [null, {}, { directory: '.', pattern: '*.txt', extra: true }, { directory: '.', pattern: '\u001b[2J' }]) {
     assert.throws(() => renderCountingProposal('count_files_recursive', input));

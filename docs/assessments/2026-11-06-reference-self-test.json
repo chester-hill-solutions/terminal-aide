@@ -10,10 +10,10 @@
       "exclude": true
     }
   },
-  "sourceSha256": "105f1cb23b49be8356025ebf1ac3c215861501f17991888bb489e76e33113369",
+  "sourceSha256": "d1c1a5a7a8cfef5b0fd64e33b99204261c62e78a66a94ac637bb560d8d9d085f",
   "platform": "darwin",
   "node": "v25.9.0",
-  "generatedAt": "2026-11-06T01:48:04.178Z",
+  "generatedAt": "2026-11-06T03:08:17.739Z",
   "passed": 16,
   "total": 16,
   "completed": 16,
@@ -22,7 +22,7 @@
     {
       "id": "count-text-files",
       "passed": true,
-      "milliseconds": 43,
+      "milliseconds": 56,
       "proposal": {
         "command": "find . -type f -name '*.txt' -exec printf '1\\n' \\; | wc -l",
         "explanation": "Synthetic reference proposal.",
@@ -33,7 +33,7 @@
     {
       "id": "find-content",
       "passed": true,
-      "milliseconds": 31,
+      "milliseconds": 38,
       "proposal": {
         "command": "find . -type f -name '*.txt' -exec grep -h 'TODO' {} + | wc -l",
         "explanation": "Synthetic reference proposal.",
@@ -44,7 +44,7 @@
     {
       "id": "copy-spaces",
       "passed": true,
-      "milliseconds": 25,
+      "milliseconds": 32,
       "proposal": {
         "command": "cp './source note.txt' './copied note.txt'",
         "explanation": "Synthetic reference proposal.",
@@ -55,7 +55,7 @@
     {
       "id": "copy-unusual-filename",
       "passed": true,
-      "milliseconds": 23,
+      "milliseconds": 33,
       "proposal": {
         "command": "for f in ./incoming/*.txt; do [ -f \"$f\" ] && cp \"$f\" ./copied.txt; done",
         "explanation": "Synthetic reference proposal.",
@@ -66,7 +66,7 @@
     {
       "id": "newest-including-hidden",
       "passed": true,
-      "milliseconds": 21,
+      "milliseconds": 47,
       "proposal": {
         "command": "shopt -s nullglob dotglob; newest=; for f in ./Downloads/*; do [ -f \"$f\" ] || continue; if [ -z \"$newest\" ] || [ \"$f\" -nt \"$newest\" ]; then newest=$f; fi; done; [ -n \"$newest\" ] && cp \"$newest\" ./selected.txt",
         "explanation": "Synthetic reference proposal.",
@@ -77,7 +77,7 @@
     {
       "id": "empty-newest-fails",
       "passed": true,
-      "milliseconds": 18,
+      "milliseconds": 38,
       "proposal": {
         "command": "shopt -s nullglob dotglob; newest=; for f in ./Downloads/*; do [ -f \"$f\" ] || continue; if [ -z \"$newest\" ] || [ \"$f\" -nt \"$newest\" ]; then newest=$f; fi; done; [ -n \"$newest\" ] || exit 1; cp \"$newest\" ./selected.txt",
         "explanation": "Synthetic reference proposal.",
@@ -88,7 +88,7 @@
     {
       "id": "delete-only-requested-file",
       "passed": true,
-      "milliseconds": 20,
+      "milliseconds": 27,
       "proposal": {
         "command": "rm ./obsolete.txt",
         "explanation": "Synthetic reference proposal.",
@@ -101,7 +101,7 @@
     {
       "id": "arithmetic",
       "passed": true,
-      "milliseconds": 16,
+      "milliseconds": 19,
       "proposal": {
         "command": "printf \"%s\\n\" \"$((12 * 4))\"",
         "explanation": "Synthetic reference proposal.",
@@ -112,7 +112,7 @@
     {
       "id": "saved-tool-preference",
       "passed": true,
-      "milliseconds": 22,
+      "milliseconds": 21,
       "proposal": {
         "command": "awk 'BEGIN { print sqrt(144) }'",
         "explanation": "Synthetic reference proposal.",
@@ -156,7 +156,7 @@
     {
       "id": "count-with-no-matches",
       "passed": true,
-      "milliseconds": 22,
+      "milliseconds": 24,
       "proposal": {
         "command": "find . -type f -name '*.txt' -print0 | tr -cd '\\000' | wc -c",
         "explanation": "Synthetic reference proposal.",
@@ -178,7 +178,7 @@
     {
       "id": "newest-name-is-not-sort-order",
       "passed": true,
-      "milliseconds": 22,
+      "milliseconds": 24,
       "proposal": {
         "command": "shopt -s nullglob dotglob; newest=; for f in ./incoming/*; do [ -f \"$f\" ] || continue; if [ -z \"$newest\" ] || [ \"$f\" -nt \"$newest\" ]; then newest=$f; fi; done; [ -n \"$newest\" ] && cp \"$newest\" ./archive-picked.dat",
         "explanation": "Synthetic reference proposal.",
@@ -189,7 +189,7 @@
     {
       "id": "different-arithmetic-operands",
       "passed": true,
-      "milliseconds": 18,
+      "milliseconds": 19,
       "proposal": {
         "command": "printf \"%s\\n\" \"$((341 * 19))\"",
         "explanation": "Synthetic reference proposal.",

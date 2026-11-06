@@ -33,6 +33,8 @@ test('approved commands execute in the requested cwd without the API key or Bash
     await assert.rejects(access(join(directory, 'startup-ran')));
     assert.equal(await executeCommand('false | true', { cwd: directory, env }), 1, 'pipefail must preserve failure');
     assert.equal(await executeCommand('exit 23', { cwd: directory, env }), 23);
+    assert.equal(await executeCommand('if (: >&3) 2>/dev/null; then exit 99; fi', { cwd: directory, env }), 0,
+      'the approved command cannot write to the private supervisor control descriptor');
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
 

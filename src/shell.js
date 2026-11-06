@@ -1,5 +1,6 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { constants } from 'node:os';
+import { fileURLToPath } from 'node:url';
 
 export const BASH = '/bin/bash';
 
@@ -28,9 +29,10 @@ export async function executeCommand(command, { cwd, env = process.env, signal }
   return new Promise((resolve, reject) => {
     // Job control creates a command process group in the existing terminal session.
     // Unlike detached spawning, this preserves /dev/tty for ssh, scp and sudo.
-    const launcher = 'set -m\nexec 4>&2\n{ /bin/bash --noprofile --norc -o pipefail -c "$1" 2>&4 3>&- 4>&- & } 2>/dev/null\nprintf "%s\\n" "$!" >&3\nexec 4>&-\nfg %1 >/dev/null 2>&1';
+    const launcher = 'set -m\nexec 4>&2\n{ "$1" "$2" "$3" 2>&4 4>&- & } 2>/dev/null\nprintf "%s\\n" "$!" >&3\nexec 4>&-\nfg %1 >/dev/null 2>&1';
     const interactive = process.stdin.isTTY ? ['-i'] : [];
-    const child = spawn(BASH, ['--noprofile', '--norc', ...interactive, '-c', launcher, 'aide', command], {
+    const supervisor = fileURLToPath(new URL('./command-supervisor.js', import.meta.url));
+    const child = spawn(BASH, ['--noprofile', '--norc', ...interactive, '-c', launcher, 'aide', process.execPath, supervisor, command], {
       cwd,
       env: commandEnvironment(env),
       stdio: ['inherit', 'inherit', 'inherit', 'pipe'],
@@ -38,6 +40,8 @@ export async function executeCommand(command, { cwd, env = process.env, signal }
     let group;
     let announcement = '';
     let escalation;
+    let interrupted = false;
+    const cancelled = () => signal?.aborted || interrupted;
     const killGroup = (name) => {
       if (!group) return;
       try { process.kill(-group, name); }
@@ -50,9 +54,13 @@ export async function executeCommand(command, { cwd, env = process.env, signal }
     };
     child.stdio[3].on('data', chunk => {
       announcement += chunk;
-      if (!group && /^\d+\n/.test(announcement)) {
-        group = Number(announcement.split('\n')[0]);
-        if (signal?.aborted) onAbort();
+      let end;
+      while ((end = announcement.indexOf('\n')) !== -1) {
+        const line = announcement.slice(0, end);
+        announcement = announcement.slice(end + 1);
+        if (!group && /^\d+$/.test(line)) group = Number(line);
+        else if (line === 'INT') interrupted = true;
+        if (cancelled()) onAbort();
       }
     });
     signal?.addEventListener('abort', onAbort, { once: true });
@@ -66,10 +74,11 @@ export async function executeCommand(command, { cwd, env = process.env, signal }
     });
     child.once('close', (code, exitSignal) => {
       cleanup();
-      if (signal?.aborted) {
+      if (cancelled()) {
         // A foreground job can exit while an interrupt-ignoring descendant remains.
         killGroup('SIGKILL');
-        reject(signal.reason);
+        if (signal?.aborted) reject(signal.reason);
+        else resolve(130);
       } else resolve(code ?? (128 + (constants.signals[exitSignal] ?? 1)));
     });
     if (signal?.aborted) onAbort();
