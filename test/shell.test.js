@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, readFile, rm, writeFile, access } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { setTimeout as delay } from 'node:timers/promises';
 import test from 'node:test';
 import { checkSyntax, commandEnvironment, executeCommand } from '../src/shell.js';
 
@@ -32,6 +33,8 @@ test('approved commands execute in the requested cwd without the API key or Bash
     await assert.rejects(access(join(directory, 'startup-ran')));
     assert.equal(await executeCommand('false | true', { cwd: directory, env }), 1, 'pipefail must preserve failure');
     assert.equal(await executeCommand('exit 23', { cwd: directory, env }), 23);
+    assert.equal(await executeCommand('if (: >&3) 2>/dev/null; then exit 99; fi', { cwd: directory, env }), 0,
+      'the approved command cannot write to the private supervisor control descriptor');
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
 
@@ -45,3 +48,33 @@ test('a cancelled command never spawns Bash', async () => {
   const controller = new AbortController(); controller.abort();
   await assert.rejects(executeCommand('exit 0', { signal: controller.signal }), /abort/i);
 });
+
+async function waitForFile(file) {
+  for (let attempt = 0; attempt < 200; attempt++) {
+    try { await access(file); return; }
+    catch (error) { if (error.code !== 'ENOENT') throw error; }
+    await delay(5);
+  }
+  throw new Error('Command did not reach its ready state.');
+}
+
+for (const ignoresInterrupt of [false, true]) {
+  test(`cancellation stops started work before returning (ignores interrupt: ${ignoresInterrupt})`, { timeout: 5000 }, async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'aide-cancel-'));
+    const controller = new AbortController();
+    try {
+      const script = `${ignoresInterrupt ? "trap '' INT TERM; " : ''}printf ready > ready; sleep 0.7; printf continued > after-cancellation`;
+      const outcome = executeCommand(script, { cwd: directory, signal: controller.signal }).then(
+        code => ({ code }), error => ({ error }),
+      );
+      await waitForFile(join(directory, 'ready'));
+      controller.abort();
+      assert.equal((await outcome).error?.name, 'AbortError');
+      await delay(800);
+      await assert.rejects(access(join(directory, 'after-cancellation')), { code: 'ENOENT' });
+    } finally {
+      controller.abort();
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+}

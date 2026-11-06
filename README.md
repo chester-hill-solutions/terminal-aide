@@ -134,9 +134,9 @@ Aide proposes a command to select the newest regular file in `~/Downloads` and c
 
 ## Execution and privacy
 
-Aide uses exactly [`cohere/north-mini-code:free`](https://openrouter.ai/cohere/north-mini-code:free) through OpenRouter's Chat Completions API. It uses a proposal-only function tool and validates the returned data locally. The model cannot run tools or commands. There is no fallback to a different model. OpenRouter [rate limits free models](https://openrouter.ai/docs/api/reference/limits); availability and limits can change.
+Aide uses exactly [`cohere/north-mini-code:free`](https://openrouter.ai/cohere/north-mini-code:free) through OpenRouter's Chat Completions API. Its function tools only propose commands or clarification questions. For supported recursive counts and copying exactly one matching file, North supplies typed parameters and Aide renders portable Bash locally. Other requests use the general Bash proposal. The model cannot run tools or commands. There is no fallback to a different model. OpenRouter [rate limits free models](https://openrouter.ai/docs/api/reference/limits); availability and limits can change.
 
-Aide also accepts a complete JSON proposal returned as plain text, applying the identical schema and terminal-control checks. If the model returns unstructured text or malformed tool-call JSON, Aide makes one additional request with the same model under the original timeout. Every accepted proposal passes the same confirmation flow. Authentication failures, rate limits, and rejected unsafe content fail immediately.
+Aide also accepts a complete JSON proposal returned as plain text, applying the identical schema and terminal-control checks. If a response is truncated, malformed, or has invalid Bash syntax, Aide can make one additional request with North under the original timeout. Every accepted proposal passes the same confirmation flow. Authentication failures, rate limits, and rejected unsafe content fail immediately.
 
 Each request sends only your request, follow-up answers, selected rules, operating system, working directory, and home directory to OpenRouter and the model provider. Rules are loaded from the global configuration and the current project's `.aide/rules.json`; project discovery checks marker paths without reading source files. Aide does not read other project file contents, directory listings, shell history, or SSH configuration during generation. Do not include secrets in your requests or rules. The API key is used only in the authorization header. Both `AIDE_OPENROUTER_API_KEY` and `OPENROUTER_API_KEY` are removed from the generated command's environment. Aide stores no history or request logs.
 
@@ -146,6 +146,8 @@ After confirmation, the exact displayed command runs with your user's permission
 
 Commands inherit your current directory and usual environment (apart from the API key and Bash hooks). A `cd` command affects the child process only; it cannot change the parent terminal's directory. The CLI returns the executed command's exit code. A declined proposal returns zero; errors return one; a process-level interruption returns 130. Aide does not retry failed commands automatically.
 
+Cancellation through Aide's abort handler signals the command's process group and escalates if it ignores interruption. The launcher keeps a controlling terminal for tools that read `/dev/tty`. Saved-rule updates lock the full read-modify-write operation across processes. A busy lock fails with recovery guidance instead of silently overwriting another update.
+
 ## Development
 
 ```bash
@@ -154,11 +156,14 @@ cd terminal-aide
 npm ci --ignore-scripts
 npm test
 npm run check
+npm run test:coverage
 npm run pack:check
 npm link
 ```
 
 Tests use mocked OpenRouter responses and real local Bash processes. They cover explicit confirmation, preview mode, clarification, invalid responses, API failures, cancellation, piped input, startup-hook isolation, and exit codes. They do not contact OpenRouter or perform real network transfers.
+
+Development checks include RatchetStrap and a controlling-terminal regression that uses Python 3's standard `pty` module. [Quality checks and model evaluation](docs/quality.md) explain the checked-in lint allowance, coverage floors, sandboxed reference suite, and intentional live North Mini Code benchmark. The live benchmark is separate from the offline test suite and requires an OpenRouter key.
 
 See the [contributing guide](https://github.com/chester-hill-solutions/terminal-aide/blob/main/.github/CONTRIBUTING.md) for development, repository layout, and releases; the [security policy](https://github.com/chester-hill-solutions/terminal-aide/blob/main/.github/SECURITY.md) for private vulnerability reporting; and the [changelog](https://github.com/chester-hill-solutions/terminal-aide/blob/main/docs/CHANGELOG.md) for release notes. Contributions and reproducible bug reports are welcome.
 
