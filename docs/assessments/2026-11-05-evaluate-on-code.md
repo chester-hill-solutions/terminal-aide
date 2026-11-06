@@ -2,7 +2,27 @@
 
 Terminal Aide is a compact command-generation CLI with a clear approval boundary and substantial automated testing. Its surrounding software is well tested, but actual model command accuracy remains unmeasured. Local experiments reproduced incomplete cancellation, lost concurrent preference updates, and preference selection that misses natural paraphrases.
 
-Assessed on November 5, 2026, against source revision [`c94b6a5a3b25c4b8d147e9ac32f2a2e4a0fcc2f7`](https://github.com/chester-hill-solutions/terminal-aide/tree/c94b6a5a3b25c4b8d147e9ac32f2a2e4a0fcc2f7), using macOS and Node.js 25.9.0. Findings describe that revision; fixes have not been implemented as part of this assessment.
+Assessed on November 5, 2026, against source revision [`c94b6a5a3b25c4b8d147e9ac32f2a2e4a0fcc2f7`](https://github.com/chester-hill-solutions/terminal-aide/tree/c94b6a5a3b25c4b8d147e9ac32f2a2e4a0fcc2f7), using macOS and Node.js 25.9.0. The original findings and scores below describe that revision. The remediation follow-up records subsequent changes separately.
+
+## Remediation follow-up — November 6, 2026 UTC
+
+F1, F2, and F3 now have passing regressions against real behavior:
+
+| Finding | Change | Evidence |
+| --- | --- | --- |
+| F1: cancellation | Interrupt the command process group, force termination if needed, and wait for launcher closure before returning cancellation. Preserve the controlling terminal. | Started commands cannot write their delayed marker after cancellation, including interrupt-ignoring commands. A real pseudo-terminal test verifies `/dev/tty` input and exit status. |
+| F2: concurrent updates | Lock the complete read-modify-write operation, retaining atomic file replacement. | Ten independent CLI processes preserve all ten additions. Busy locks time out without being stolen; update failures release the lock. |
+| F3: preference selection | Normalize ordinary apostrophes, retain inferred negative constraints generally, and expand built-in topic phrases. | The original diagnostic dataset now selects 36/36 preferences, up from 18/36. Twenty-seven paraphrase cases and six negative constraints also pass. Explicit user scoping remains respected. |
+
+Verification on macOS: 93 tests passed with zero failures or skips, including sandbox boundary checks. Runtime coverage is 99.01% lines, 93.00% branches, and 95.92% functions. The clean installation passes the offline suite. Node 22.23.4 also passes, with its sandbox boundary test intentionally skipped unless explicitly enabled. Package validation allows only 17 runtime/package files, with no evaluation captures, RatchetStrap archive, or development tools in the published artifact.
+
+The shared CHS RatchetStrap policy now gates quality through strict diagnostic identities and a trusted Git predecessor. Existing tracked debt fell from nine diagnostics to seven; new code received no additional allowance. Coverage floors and the Linux/macOS, Node 22/24 CI matrix guard future changes. See [quality checks and reproduction instructions](../quality.md).
+
+Model effectiveness is now measured on a small acceptance suite. The model remains **`cohere/north-mini-code:free`**, with no alternative-model fallback. Typed proposal tools render portable counting/copying commands or clarification responses from North's parameters. Every command still requires the ordinary approval flow.
+
+The final live run passed **15/16 cases (93.75%)**. One newest-file case returned an invalid proposal and was rejected before execution. The independent reference commands passed **16/16**, confirming that the grader can accept the intended outcomes. The live acceptance command correctly exited unsuccessfully; the threshold remains 16/16. This result is not a general model-accuracy estimate: the fixtures informed development, and earlier runs show variable outcomes. Warning completeness, arbitrary requests, and live Linux model compatibility remain incompletely measured.
+
+Saved evidence: [final live outcomes](2026-11-06-north-mini-code.json), [reference self-test](2026-11-06-reference-self-test.json), and [all complete exploratory North runs](2026-11-06-north-development-history.json). Reports identify the evaluated source hash and settings; failed raw proposals and provider reasoning are omitted. The original category ratings are preserved rather than silently rescored after fixes.
 
 ## Implemented product
 

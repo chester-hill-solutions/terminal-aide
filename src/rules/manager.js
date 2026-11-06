@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, rename, unlink, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { dirname, isAbsolute, join } from 'node:path';
+import { withRulesLock } from './lock.js';
 import { parseConditions, promptRuleBytes, ruleConditions, ruleText, selectRules, validateStoredRules } from './selection.js';
 export { validateRules } from './selection.js';
 
@@ -75,17 +76,12 @@ export function parseRulesArgs(args) {
   return { action: 'add', rule, ...modifiers };
 }
 
-export async function manageRules(command, file) {
+async function updateRules(command, file) {
   if (command.action === 'clear') {
     await saveRules(file, []);
     return 'Cleared saved rules.\n';
   }
   const rules = await loadRules(file);
-  if (command.action === 'list') {
-    return rules.length
-      ? `Saved rules:\n${rules.map((rule, index) => `${index + 1}. [${ruleConditions(rule).join(',')}] ${ruleText(rule)}`).join('\n')}\n`
-      : 'No saved rules. Add one with: aide --rules "use zipgrep for search"\n';
-  }
   if (command.action === 'add') {
     const entry = command.when ? { text: command.rule, when: command.when } : command.rule;
     const existing = rules.findIndex((rule) => ruleText(rule) === command.rule && JSON.stringify(ruleConditions(rule)) === JSON.stringify(ruleConditions(entry)));
@@ -102,4 +98,14 @@ export async function manageRules(command, file) {
     return `Removed rule: ${ruleText(removed)}\n`;
   }
   throw new Error('Unknown rules action. Use aide --help.');
+}
+
+export async function manageRules(command, file) {
+  if (command.action === 'list') {
+    const rules = await loadRules(file);
+    return rules.length
+      ? `Saved rules:\n${rules.map((rule, index) => `${index + 1}. [${ruleConditions(rule).join(',')}] ${ruleText(rule)}`).join('\n')}\n`
+      : 'No saved rules. Add one with: aide --rules "use zipgrep for search"\n';
+  }
+  return withRulesLock(file, () => updateRules(command, file));
 }

@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 2,
+  "mode": "identities",
+  "adapter": "eslint-identities@1",
+  "identities": {
+    "complexity": [
+      "src/cli.js:complexity:Async function 'runCli' has a complexity of 49. Maximum allowed is 20.#1",
+      "src/rules/manager.js:complexity:Function 'parseRulesArgs' has a complexity of 27. Maximum allowed is 20.#1"
+    ],
+    "max-depth": [],
+    "max-params": [],
+    "max-lines-per-function": [],
+    "no-console": [
+      "scripts/check-package.mjs:no-console:Unexpected console statement.#1",
+      "scripts/check-syntax.mjs:no-console:Unexpected console statement.#1",
+      "scripts/release.mjs:no-console:Unexpected console statement.#1",
+      "scripts/release.mjs:no-console:Unexpected console statement.#2",
+      "scripts/release.mjs:no-console:Unexpected console statement.#3"
+    ],
+    "no-return-await": []
+  }
+}

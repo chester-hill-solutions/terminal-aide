@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
 import { mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import test from 'node:test';
-import { loadRules, manageRules, parseRulesArgs, rulesFile, saveRules, validateRules } from '../../src/rules/manager.js';
+import { loadRules, manageRules, parseRulesArgs, rulesFile, validateRules } from '../../src/rules/manager.js';
 
 test('rules live in the global config directory, with an absolute XDG override', () => {
   assert.equal(rulesFile({ env: {}, home: '/home/test' }), '/home/test/.config/terminal-aide/rules.json');
@@ -72,4 +74,25 @@ test('conditional, general, project, and inspection flags parse without becoming
     ['--always', '--when', 'search', 'use grep'], ['--project', '--for', 'hello'], ['--for']]) {
     assert.throws(() => parseRulesArgs(args));
   }
+});
+
+test('simultaneous CLI processes retain every successful rule addition', { timeout: 10000 }, async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'aide-concurrent-rules-'));
+  try {
+    const results = await Promise.all(Array.from({ length: 10 }, (_, index) => new Promise((resolve, reject) => {
+      const child = spawn(process.execPath, [fileURLToPath(new URL('../../bin/aide.js', import.meta.url)),
+        '--rules', '--when', 'search', `Concurrent preference ${index}`], {
+        env: { ...process.env, XDG_CONFIG_HOME: directory }, stdio: ['ignore', 'pipe', 'pipe'],
+      });
+      let output = '';
+      child.stdout.on('data', chunk => { output += chunk; });
+      child.stderr.on('data', chunk => { output += chunk; });
+      child.once('error', reject);
+      child.once('close', code => resolve({ code, output }));
+    })));
+    assert.ok(results.every(({ code }) => code === 0), JSON.stringify(results));
+    const rules = await loadRules(rulesFile({ env: { XDG_CONFIG_HOME: directory } }));
+    assert.equal(rules.length, 10, 'every successful update must survive');
+    assert.equal(new Set(rules.map(rule => rule.text)).size, 10);
+  } finally { await rm(directory, { recursive: true, force: true }); }
 });

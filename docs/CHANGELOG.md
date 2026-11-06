@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Stop a cancelled command's process group, including interrupt-ignoring children, while preserving terminal access for SSH and sudo prompts.
+- Serialize saved-rule updates across CLI processes and preserve negative constraints across ordinary punctuation and wording.
+- Match additional request paraphrases for the built-in rule topics.
+- Keep North Mini Code as the only model; add typed proposals for portable counting, single-match copying, and clarification, concrete proposal examples, local syntax validation, and bounded recovery from truncated or syntactically invalid replies.
+- Add RatchetStrap identity checks with trusted Git predecessor protection, minimum coverage gates, and sandboxed outcome evaluation of live North Mini Code proposals.
 - Wait for npm to finish processing an accepted publication before verifying release artifacts, with bounded polling and no repeated publish.
 
 ## 0.1.1 — 2026-11-05
