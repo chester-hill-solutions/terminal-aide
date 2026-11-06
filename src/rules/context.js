@@ -1,7 +1,7 @@
 import { realpath, stat } from 'node:fs/promises';
 import { dirname, join, sep } from 'node:path';
-import { loadRules, rulesFile } from './rules.js';
-import { MAX_PROMPT_RULE_BYTES, selectRules } from './rule-selection.js';
+import { loadRules, rulesFile } from './manager.js';
+import { MAX_PROMPT_RULE_BYTES, selectRules } from './selection.js';
 
 async function exists(path) {
   try { await stat(path); return true; }

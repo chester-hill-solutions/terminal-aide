@@ -2,8 +2,8 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, rename, unlink, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { dirname, isAbsolute, join } from 'node:path';
-import { parseConditions, promptRuleBytes, ruleConditions, ruleText, selectRules, validateStoredRules } from './rule-selection.js';
-export { validateRules } from './rule-selection.js';
+import { parseConditions, promptRuleBytes, ruleConditions, ruleText, selectRules, validateStoredRules } from './selection.js';
+export { validateRules } from './selection.js';
 
 export function rulesFile({ env = process.env, home = homedir() } = {}) {
   const root = env.XDG_CONFIG_HOME && isAbsolute(env.XDG_CONFIG_HOME)

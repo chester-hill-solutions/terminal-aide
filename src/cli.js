@@ -3,9 +3,9 @@ import { readFileSync } from 'node:fs';
 import { MODEL, proposeCommand, validateProposal, visibleText } from './openrouter.js';
 import { checkSyntax, executeCommand } from './shell.js';
 import { createTerminal } from './terminal.js';
-import { manageRules, parseRulesArgs, rulesFile } from './rules.js';
-import { inspectRules, loadRuleContext, projectRulesFile } from './rule-context.js';
-import { selectRules } from './rule-selection.js';
+import { manageRules, parseRulesArgs, rulesFile } from './rules/manager.js';
+import { inspectRules, loadRuleContext, projectRulesFile } from './rules/context.js';
+import { selectRules } from './rules/selection.js';
 
 const VERSION = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
 
