@@ -5,6 +5,11 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    inputs:
+      live_model_eval:
+        description: Run the live sandboxed model benchmark using the configured secret
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -22,12 +27,35 @@ jobs:
         node: [22, 24]
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
+    env:
+      QUALITY_BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before || 'HEAD' }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ matrix.node }}
       - run: npm ci --ignore-scripts
       - run: npm run check
-      - run: npm test
+      - run: npm run test:coverage
+        env:
+          AIDE_SANDBOX_TESTS: ${{ runner.os == 'macOS' && '1' || '0' }}
+      - run: npm run eval:self-test
+        if: runner.os == 'macOS'
       - run: npm run pack:check
+
+  live-model-evaluation:
+    if: github.event_name == 'workflow_dispatch' && inputs.live_model_eval
+    runs-on: macos-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+      - run: npm ci --ignore-scripts
+      - run: npm run eval:self-test
+      - run: npm run eval:model
+        env:
+          AIDE_OPENROUTER_API_KEY: ${{ secrets.AIDE_OPENROUTER_API_KEY }}

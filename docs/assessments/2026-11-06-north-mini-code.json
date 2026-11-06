@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "fixtureVersion": 2,
+  "model": "cohere/north-mini-code:free",
+  "generation": {
+    "temperature": 0,
+    "max_tokens": 16384,
+    "reasoning": {
+      "enabled": true,
+      "exclude": true
+    }
+  },
+  "sourceSha256": "105f1cb23b49be8356025ebf1ac3c215861501f17991888bb489e76e33113369",
+  "platform": "darwin",
+  "node": "v25.9.0",
+  "generatedAt": "2026-11-06T01:45:27.955Z",
+  "passed": 15,
+  "total": 16,
+  "completed": 16,
+  "complete": true,
+  "results": [
+    {
+      "id": "count-text-files",
+      "passed": true,
+      "milliseconds": 2180,
+      "proposal": {
+        "command": "find -H '.' -type f -name '*.txt' -print0 | tr -cd '\\000' | wc -c",
+        "explanation": "Count matching regular files recursively.",
+        "warnings": [],
+        "clarification": null
+      }
+    },
+    {
+      "id": "find-content",
+      "passed": true,
+      "milliseconds": 1063,
+      "proposal": {
+        "command": "AIDE_MATCH_TEXT='TODO' find -H '.' -type f -name '*.txt' -exec awk 'index($0, ENVIRON[\"AIDE_MATCH_TEXT\"]) {n++} END {print n+0}' {} + | awk '{n += $1} END {print n+0}'",
+        "explanation": "Count lines containing the requested literal text across matching files.",
+        "warnings": [],
+        "clarification": null
+      }
+    },
+    {
+      "id": "copy-spaces",
+      "passed": true,
+      "milliseconds": 6316,
+      "proposal": {
+        "command": "cp \"./source note.txt\" \"./copied note.txt\"",
+        "explanation": "Copy the file with spaces in the name from ./source note.txt to ./copied note.txt, preserving the source file.",
+        "warnings": [],
+        "clarification": null
+      }
+    },
+    {
+      "id": "copy-unusual-filename",
+      "passed": true,
+      "milliseconds": 1559,
+      "proposal": {
+        "command": "shopt -s nullglob dotglob\ndirectory='./incoming'\npattern='*.txt'\nmatches=()\nfor file in \"$directory\"/*; do\n  [ -f \"$file\" ] || continue\n  case \"${file##*/}\" in $pattern) matches[${#matches[@]}]=$file ;; esac\ndone\nif [ \"${#matches[@]}\" -ne 1 ]; then printf '%s\\n' 'Expected exactly one matching regular file.' >&2; exit 1; fi\ncp -- \"${matches[0]}\" './copied.txt'",
+        "explanation": "Copy the single matching regular file and preserve its source.",
+        "warnings": [
+          "An existing destination file may be overwritten."
+        ],
+        "clarification": null
+      }
+    },
+    {
+      "id": "newest-including-hidden",
+      "passed": true,
+      "milliseconds": 7983,
+      "proposal": {
+        "command": "shopt -s nullglob dotglob\nnewest=\nfor file in ./Downloads/*; do\n  [ -f \"$file\" ] || continue\n  if [ -z \"$newest\" ] || [ \"$file\" -nt \"$newest\" ]; then\n    newest=$file\n  fi\ndone\nif [ -z \"$newest\" ]; then\n  printf \"%s\\n\" \"No regular files found.\" >&2\n  exit 1\nfi\ncp -- \"$newest\" ./selected.txt",
+        "explanation": "Find the most recently modified regular file in ./Downloads (including hidden files) and copy it to ./selected.txt. The command iterates through all files, checks for regular files, tracks the newest by modification time, and copies it. If no regular files exist, it prints an error and exits.",
+        "warnings": [
+          "An existing ./selected.txt will be overwritten."
+        ],
+        "clarification": null
+      }
+    },
+    {
+      "id": "empty-newest-fails",
+      "passed": true,
+      "milliseconds": 8969,
+      "proposal": {
+        "command": "shopt -s nullglob dotglob\nnewest=\nfor file in ./Downloads/*; do\n  [ -f \"$file\" ] || continue\n  if [ -z \"$newest\" ] || [ \"$file\" -nt \"$newest\" ]; then newest=$file; fi\ndone\nif [ -z \"$newest\" ]; then printf \"%s\\n\" \"No regular files found.\" >&2; exit 1; fi\ncp -- \"$newest\" ./selected.txt",
+        "explanation": "Find the most recently modified regular file directly in ./Downloads (including hidden files) and copy it to ./selected.txt. If no regular files exist, exit with error without creating selected.txt.",
+        "warnings": [],
+        "clarification": null
+      }
+    },
+    {
+      "id": "delete-only-requested-file",
+      "passed": true,
+      "milliseconds": 2322,
+      "proposal": {
+        "command": "rm -- ./obsolete.txt",
+        "explanation": "Remove only the specified file.",
+        "warnings": [
+          "This permanently deletes ./obsolete.txt."
+        ],
+        "clarification": null
+      }
+    },
+    {
+      "id": "arithmetic",
+      "passed": true,
+      "milliseconds": 4125,
+      "proposal": {
+        "command": "echo $((12 *  4))",
+        "explanation": "Compute 12 multiplied by 4 using Bash arithmetic expansion and print the result.",
+        "warnings": [],
+        "clarification": null
+      }
+    },
+    {
+      "id": "saved-tool-preference",
+      "passed": true,
+      "milliseconds": 2587,
+      "proposal": {
+        "command": "awk 'BEGIN {printf \"%.0f\\n\", sqrt(144)}'",
+        "explanation": "Calculate the square root of 144 using awk's sqrt() function and print the integer result.",
+        "warnings": [],
+        "clarification": null
+      }
+    },
+    {
+      "id": "missing-transfer-destination",
+      "passed": true,
+      "milliseconds": 3790,
+      "proposal": {
+        "command": null,
+        "explanation": "More information is needed before proposing a command.",
+        "warnings": [],
+        "clarification": "Which server address and destination directory should I use for the scp transfer?"
+      }
+    },
+    {
+      "id": "missing-delete-target",
+      "passed": true,
+      "milliseconds": 1290,
+      "proposal": {
+        "command": null,
+        "explanation": "More information is needed before proposing a command.",
+        "warnings": [],
+        "clarification": "Which exact file or path should I delete?"
+      }
+    },
+    {
+      "id": "line-count-with-spaces",
+      "passed": true,
+      "milliseconds": 3185,
+      "proposal": {
+        "command": "wc -l < \"./source note.txt\"",
+        "explanation": "Count lines in the file './source note.txt' (which contains a space) and print only the number. The input redirection to wc suppresses the filename from the output.",
+        "warnings": [],
+        "clarification": null
+      }
+    },
+    {
+      "id": "count-with-no-matches",
+      "passed": true,
+      "milliseconds": 1891,
+      "proposal": {
+        "command": "find -H '.' -type f -name '*.txt' -print0 | tr -cd '\\000' | wc -c",
+        "explanation": "Count matching regular files recursively.",
+        "warnings": [],
+        "clarification": null
+      }
+    },
+    {
+      "id": "literal-pattern-in-unusual-paths",
+      "passed": true,
+      "milliseconds": 1430,
+      "proposal": {
+        "command": "AIDE_MATCH_TEXT='[ok]' find -H '.' -type f -name '*.log' -exec awk 'index($0, ENVIRON[\"AIDE_MATCH_TEXT\"]) {n++} END {print n+0}' {} + | awk '{n += $1} END {print n+0}'",
+        "explanation": "Count lines containing the requested literal text across matching files.",
+        "warnings": [],
+        "clarification": null
+      }
+    },
+    {
+      "id": "newest-name-is-not-sort-order",
+      "passed": false,
+      "error": "The model returned an invalid proposal. Nothing was run; try rephrasing your request.",
+      "milliseconds": 5538
+    },
+    {
+      "id": "different-arithmetic-operands",
+      "passed": true,
+      "milliseconds": 1872,
+      "proposal": {
+        "command": "echo $((341 * 19))",
+        "explanation": "Calculate 341 multiplied by 19 and print the result.",
+        "warnings": [],
+        "clarification": null
+      }
+    }
+  ],
+  "mode": "live",
+  "requiredPassRate": 1
+}

@@ -1,7 +1,12 @@
 import { validatePromptRules } from './rules/selection.js';
+import { checkSyntax } from './shell.js';
+import { proposalExamples } from './proposal-examples.js';
+import { countingTools, renderCountingProposal } from './counting.js';
+import { actionTools, renderActionProposal } from './proposal-actions.js';
 
 export const MODEL = 'cohere/north-mini-code:free';
 export const ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
+export const GENERATION = Object.freeze({ temperature: 0, max_tokens: 16384, reasoning: Object.freeze({ enabled: true, exclude: true }) });
 
 const TOOL_NAME = 'propose_bash_command';
 // Prevent terminal escape sequences, carriage-return overwrites, and bidi hiding.
@@ -40,7 +45,11 @@ export function validateProposal(value) {
 }
 
 const SYSTEM_PROMPT = `You translate a person's request into a Bash command for their machine.
-Always call ${TOOL_NAME}. This tool only proposes text; it does not run anything.
+Always call exactly one proposal tool. These tools propose text; they do not run anything.
+For recursive file counts and literal matching-line counts, use count_files_recursive or
+count_matching_lines_recursive when they satisfy the request and saved preferences.
+For copying exactly one matching file, use copy_single_matching_file. For missing essential details,
+use request_clarification. Otherwise use ${TOOL_NAME}.
 Use command=null and ask a concise clarification question if essential details are missing.
 Otherwise set clarification=null and provide exactly the complete command to run, without Markdown.
 Explain the result in one concise sentence, including any essential assumptions. Do not teach command
@@ -63,6 +72,8 @@ saved rules explicitly select another tool. If a preferred tool cannot perform t
 clarification rather than silently substituting a different tool.
 Quote paths and expansions correctly, including filenames with spaces, newlines, and leading dashes.
 Never parse ls output or use eval. Use null-delimited operations or quoted Bash glob loops for filenames.
+Before proposing, verify that every part of the request is implemented and that numeric operands and
+filenames match the request. Evaluate arithmetic expressions rather than substituting placeholder variables.
 Choose the simplest command that fulfils the whole request; do not add pipelines for cosmetic formatting.
 For a directory size "breakdown", show the immediate subdirectories and the total, in human-readable
 units, largest first. A single du -s total does not fulfil a breakdown request. Use portable du -h -d 1
@@ -79,7 +90,14 @@ Do not run sudo unless requested or necessary; explain why it is needed.
 Avoid broad destructive operations when the scope is ambiguous; ask for clarification instead.
 Do not inspect credentials, shell history, or environment variables to obtain context.
 Do not mention or access AIDE_OPENROUTER_API_KEY or OPENROUTER_API_KEY;
-both are removed from the execution environment.`;
+both are removed from the execution environment.
+
+Do not count NUL-delimited filenames with wc -l; count their NUL separators or emit one record per file.
+grep -c prefixes counts with filenames when given multiple files; do not sum those prefixed strings as numbers.
+BSD find has no -printf. Never use it for the supplied macOS context. A missing source must exit nonzero.
+Never invent placeholders such as user@server or select an arbitrary file when a required detail is missing.
+Use the following portable examples as patterns, adapting paths, literals, and actions to the actual request:
+${JSON.stringify(proposalExamples)}`;
 
 const TOOL = {
   type: 'function',
@@ -89,10 +107,10 @@ const TOOL = {
     parameters: {
       type: 'object',
       properties: {
-        command: { type: ['string', 'null'], description: 'Complete Bash script, or null if clarification is needed.' },
         explanation: { type: 'string', description: 'Plain language explanation and assumptions; one paragraph.' },
         warnings: { type: 'array', items: { type: 'string' }, description: 'Concrete side effects and risks.' },
         clarification: { type: ['string', 'null'], description: 'Question when command is null; otherwise null.' },
+        command: { type: ['string', 'null'], description: 'Complete executable Bash only, or null if clarification is needed. Never include reasoning, commentary, explanations, or Markdown in this field.' },
       },
       required: ['command', 'explanation', 'warnings', 'clarification'],
       additionalProperties: false,
@@ -102,44 +120,106 @@ const TOOL = {
 
 class ProposalFormatError extends Error {}
 
-function readProposal(payload) {
-  if (payload?.error) throw new Error('OpenRouter reported a provider error. Nothing was run; try again later.');
-  const choice = payload?.choices?.[0];
-  if (!choice || !['tool_calls', 'stop'].includes(choice.finish_reason)) {
-    throw new Error('The model did not complete its proposal. Nothing was run; try again.');
+const proposalTools = [TOOL, ...countingTools, ...actionTools];
+const proposalToolNames = new Set(proposalTools.map(tool => tool.function.name));
+
+function toolArguments(calls) {
+  if (!Array.isArray(calls) || calls.length !== 1) throw new ProposalFormatError('The model did not return a single command proposal.');
+  const call = calls[0];
+  if (call?.type !== 'function' || !proposalToolNames.has(call.function?.name) || typeof call.function?.arguments !== 'string') {
+    throw new ProposalFormatError('The model did not return a recognized command proposal.');
   }
+  return { argumentsText: call.function.arguments, name: call.function.name };
+}
+
+function proposalArguments(choice) {
   const calls = choice.message?.tool_calls;
-  let argumentsText;
   if ((calls == null || (Array.isArray(calls) && calls.length === 0)) && typeof choice.message?.content === 'string') {
     // Some providers return the proposal JSON as text despite the forced tool choice.
     // Parse the entire value, then apply the identical schema and control-character checks.
-    argumentsText = choice.message.content;
-  } else {
-    if (!Array.isArray(calls) || calls.length !== 1 || calls[0]?.type !== 'function' ||
-        calls[0]?.function?.name !== TOOL_NAME || typeof calls[0]?.function?.arguments !== 'string') {
-      throw new ProposalFormatError('The model did not return a single command proposal.');
-    }
-    argumentsText = calls[0].function.arguments;
+    return { argumentsText: choice.message.content, name: TOOL_NAME };
   }
+  return toolArguments(calls);
+}
+
+function readProposal(payload, context) {
+  if (payload?.error) throw new Error('OpenRouter reported a provider error. Nothing was run; try again later.');
+  const choice = payload?.choices?.[0];
+  if (choice?.finish_reason === 'length') throw new ProposalFormatError('The model exhausted its output budget.');
+  if (!choice || !['tool_calls', 'stop'].includes(choice.finish_reason)) {
+    throw new Error('The model did not complete its proposal. Nothing was run; try again.');
+  }
+  const { argumentsText, name } = proposalArguments(choice);
   let proposal;
   try {
     proposal = JSON.parse(argumentsText);
   } catch {
     throw new ProposalFormatError('The model returned malformed command data.');
   }
-  return validateProposal(proposal);
+  if (name.startsWith('count_')) proposal = renderCountingProposal(name, proposal);
+  else if (name !== TOOL_NAME) proposal = renderActionProposal(name, proposal);
+  validateProposal(proposal);
+  if (proposal.command !== null) {
+    try { checkSyntax(proposal.command, { cwd: context.cwd }); }
+    catch (error) {
+      if (!(error instanceof SyntaxError)) throw error;
+      throw new ProposalFormatError('The model returned invalid Bash syntax.', { cause: error });
+    }
+  }
+  return proposal;
 }
 
 function apiError(status) {
   const hints = {
-    400: 'OpenRouter rejected the request. Check that North Mini Code supports the requested tool parameters.',
+    400: 'OpenRouter rejected the request. Check that the configured model supports the requested tool parameters.',
     401: 'OpenRouter rejected your API key. Check AIDE_OPENROUTER_API_KEY (or OPENROUTER_API_KEY if using the fallback).',
     402: 'OpenRouter denied this request because of account credit or budget limits.',
     403: 'OpenRouter denied access. Check your key permissions and account privacy settings.',
-    404: 'North Mini Code is currently unavailable on OpenRouter.',
+    404: `${MODEL} is currently unavailable on OpenRouter.`,
     429: 'OpenRouter rate limit reached. Wait before trying again; free models have request limits.',
   };
   return new Error(hints[status] ?? `OpenRouter request failed (HTTP ${status}). Try again later.`);
+}
+
+function feedbackMessages(messages) {
+  const instruction = 'Your previous reply was incomplete, invalid JSON, or invalid Bash. Call exactly one appropriate proposal tool with every field required by that tool.';
+  return [
+    { role: 'system', content: `${SYSTEM_PROMPT}\n${instruction}` },
+    messages[1],
+  ];
+}
+
+async function requestProposal({ messages, apiKey, signal, context, fetchImpl }) {
+  const response = await fetchImpl(ENDPOINT, {
+    method: 'POST',
+    redirect: 'error',
+    headers: {
+      Authorization: `Bearer ${apiKey.trim()}`,
+      'Content-Type': 'application/json',
+      'X-OpenRouter-Title': 'Terminal Aide',
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      messages,
+      tools: proposalTools,
+      tool_choice: 'required',
+      provider: { require_parameters: true },
+      ...GENERATION,
+      stream: false,
+    }),
+    signal,
+  });
+  if (!response.ok) {
+    await response.body?.cancel();
+    throw apiError(response.status);
+  }
+  let payload;
+  try { payload = await response.json(); }
+  catch (error) {
+    signal.throwIfAborted();
+    throw new Error('OpenRouter returned an unreadable response. Nothing was run.', { cause: error });
+  }
+  return readProposal(payload, context);
 }
 
 export async function proposeCommand({ request, context, followups = [], rules = [], apiKey, signal, fetchImpl = fetch, timeoutMs = 60000 }) {
@@ -156,45 +236,11 @@ export async function proposeCommand({ request, context, followups = [], rules =
   try {
     for (let attempt = 0; attempt < 2; attempt++) {
       requestSignal.throwIfAborted();
-      const attemptMessages = attempt === 0 ? messages : [
-        {
-          role: 'system',
-          content: `${SYSTEM_PROMPT}\nYour previous reply had an invalid tool-call format. Call ${TOOL_NAME} exactly once with all four required fields. Do not answer in plain text.`,
-        },
-        messages[1],
-      ];
-      const response = await fetchImpl(ENDPOINT, {
-        method: 'POST',
-        redirect: 'error',
-        headers: {
-          Authorization: `Bearer ${apiKey.trim()}`,
-          'Content-Type': 'application/json',
-          'X-OpenRouter-Title': 'Terminal Aide',
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          messages: attemptMessages,
-          tools: [TOOL],
-          tool_choice: { type: 'function', function: { name: TOOL_NAME } },
-          provider: { require_parameters: true },
-          max_tokens: 4096,
-          stream: false,
-        }),
-        signal: requestSignal,
-      });
-      if (!response.ok) {
-        await response.body?.cancel();
-        throw apiError(response.status);
-      }
-      let payload;
       try {
-        payload = await response.json();
-      } catch {
-        requestSignal.throwIfAborted();
-        throw new Error('OpenRouter returned an unreadable response. Nothing was run.');
-      }
-      try {
-        return readProposal(payload);
+        return await requestProposal({
+          messages: attempt === 0 ? messages : feedbackMessages(messages),
+          apiKey, signal: requestSignal, context, fetchImpl,
+        });
       } catch (error) {
         if (!(error instanceof ProposalFormatError)) throw error;
         if (attempt === 1) {
@@ -204,8 +250,8 @@ export async function proposeCommand({ request, context, followups = [], rules =
     }
   } catch (error) {
     if (signal?.aborted) throw signal.reason;
-    if (timeout.aborted) throw new Error('OpenRouter timed out after 60 seconds. Nothing was run; try again.');
-    if (error instanceof TypeError) throw new Error('Could not reach OpenRouter. Check your network connection.');
+    if (timeout.aborted) throw new Error('OpenRouter timed out after 60 seconds. Nothing was run; try again.', { cause: error });
+    if (error instanceof TypeError) throw new Error('Could not reach OpenRouter. Check your network connection.', { cause: error });
     throw error;
   }
 }

@@ -19,5 +19,5 @@ function checkDirectory(directory) {
   }
 }
 
-for (const directory of ['bin', 'src', 'scripts', 'test']) checkDirectory(join(root, directory));
+for (const directory of ['bin', 'src', 'scripts', 'test', 'eval']) checkDirectory(join(root, directory));
 console.log(`Syntax verified: ${checked} JavaScript files.`);

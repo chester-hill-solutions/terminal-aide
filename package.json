@@ -47,9 +47,15 @@
   "scripts": {
     "start": "node bin/aide.js",
     "test": "node --test",
-    "check": "node scripts/check-syntax.mjs",
+    "check": "npm run check:syntax && npm run check:quality",
+    "check:syntax": "node scripts/check-syntax.mjs",
+    "check:quality": "node scripts/check-quality.mjs",
+    "quality:tighten": "ratchet-strap tighten --exec-eslint --eslint-config scripts/eslint.config.mjs --write",
+    "test:coverage": "node --test --experimental-test-coverage --test-coverage-include=src/** --test-coverage-include=bin/** --test-coverage-lines=98 --test-coverage-branches=90 --test-coverage-functions=94",
+    "eval:self-test": "node scripts/evaluate-model.mjs --self-test --output .local/model-reference-self-test.json",
+    "eval:model": "node scripts/evaluate-model.mjs --delay-ms 4000",
     "pack:check": "node scripts/check-package.mjs",
-    "prepublishOnly": "npm run check && npm test && npm run pack:check"
+    "prepublishOnly": "npm run check && npm run test:coverage && npm run pack:check"
   },
   "files": [
     "bin/",
@@ -61,5 +67,11 @@
   "license": "MIT",
   "dependencies": {
     "cli-spinners": "3.4.0"
+  },
+  "devDependencies": {
+    "@chester-hill-solutions/ratchet-strap": "file:tools/vendor/chester-hill-solutions-ratchet-strap-0.4.0.tgz",
+    "@eslint/js": "10.0.1",
+    "eslint": "10.14.0",
+    "globals": "16.5.0"
   }
 }

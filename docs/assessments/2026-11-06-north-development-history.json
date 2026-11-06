@@ -1,0 +1,650 @@
+{
+  "purpose": "Exploratory development history; all complete local North runs retained. Configurations, code and fixtures changed. Do not aggregate or treat this as held-out model accuracy.",
+  "notes": [
+    "The first run included a sandbox /dev/fd restriction that caused a harness failure; subsequent reference tests corrected this.",
+    "Fixtures informed prompt and typed-proposal improvements, so the final suite is regression evidence, not an independent general-accuracy estimate.",
+    "No failed raw proposals or provider reasoning are included."
+  ],
+  "runs": [
+    {
+      "model": "cohere/north-mini-code:free",
+      "fixtureVersion": 1,
+      "generatedAt": "2026-11-06T00:57:07.933Z",
+      "generation": null,
+      "sourceSha256": "46557cb1a852906fbf784d2da5ff5773aeda1b6032733101ed611a0da7b8864b",
+      "passed": 8,
+      "total": 12,
+      "label": "first",
+      "completed": 12,
+      "complete": true,
+      "outcomes": [
+        {
+          "id": "count-text-files",
+          "passed": true,
+          "milliseconds": 18330
+        },
+        {
+          "id": "find-content",
+          "passed": false,
+          "milliseconds": 47611
+        },
+        {
+          "id": "copy-spaces",
+          "passed": true,
+          "milliseconds": 3227
+        },
+        {
+          "id": "copy-unusual-filename",
+          "passed": false,
+          "milliseconds": 12153
+        },
+        {
+          "id": "newest-including-hidden",
+          "passed": false,
+          "milliseconds": 7099
+        },
+        {
+          "id": "empty-newest-fails",
+          "passed": true,
+          "milliseconds": 25552
+        },
+        {
+          "id": "delete-only-requested-file",
+          "passed": true,
+          "milliseconds": 2920
+        },
+        {
+          "id": "arithmetic",
+          "passed": false,
+          "milliseconds": 3071
+        },
+        {
+          "id": "saved-tool-preference",
+          "passed": true,
+          "milliseconds": 2473
+        },
+        {
+          "id": "missing-transfer-destination",
+          "passed": true,
+          "milliseconds": 5506
+        },
+        {
+          "id": "missing-delete-target",
+          "passed": true,
+          "milliseconds": 12861
+        },
+        {
+          "id": "line-count-with-spaces",
+          "passed": true,
+          "milliseconds": 12396
+        }
+      ]
+    },
+    {
+      "model": "cohere/north-mini-code:free",
+      "fixtureVersion": 1,
+      "generatedAt": "2026-11-06T01:02:23.541Z",
+      "generation": {
+        "temperature": 0,
+        "max_tokens": 8192,
+        "reasoning": {
+          "effort": "low",
+          "exclude": true
+        }
+      },
+      "sourceSha256": "3f8b533bf3463c69c5868aa2a21957a7def1502dc472097da952da0a95e12a88",
+      "passed": 4,
+      "total": 12,
+      "label": "second",
+      "completed": 12,
+      "complete": true,
+      "outcomes": [
+        {
+          "id": "count-text-files",
+          "passed": false,
+          "milliseconds": 11560
+        },
+        {
+          "id": "find-content",
+          "passed": false,
+          "milliseconds": 16373
+        },
+        {
+          "id": "copy-spaces",
+          "passed": true,
+          "milliseconds": 3834
+        },
+        {
+          "id": "copy-unusual-filename",
+          "passed": false,
+          "milliseconds": 17762
+        },
+        {
+          "id": "newest-including-hidden",
+          "passed": false,
+          "milliseconds": 41119
+        },
+        {
+          "id": "empty-newest-fails",
+          "passed": false,
+          "milliseconds": 60013
+        },
+        {
+          "id": "delete-only-requested-file",
+          "passed": false,
+          "milliseconds": 4416
+        },
+        {
+          "id": "arithmetic",
+          "passed": false,
+          "milliseconds": 4499
+        },
+        {
+          "id": "saved-tool-preference",
+          "passed": true,
+          "milliseconds": 7204
+        },
+        {
+          "id": "missing-transfer-destination",
+          "passed": true,
+          "milliseconds": 2924
+        },
+        {
+          "id": "missing-delete-target",
+          "passed": false,
+          "milliseconds": 5844
+        },
+        {
+          "id": "line-count-with-spaces",
+          "passed": true,
+          "milliseconds": 5790
+        }
+      ]
+    },
+    {
+      "model": "cohere/north-mini-code:free",
+      "fixtureVersion": 1,
+      "generatedAt": "2026-11-06T01:10:52.612Z",
+      "generation": {
+        "temperature": 0,
+        "max_tokens": 8192,
+        "reasoning": {
+          "enabled": false,
+          "exclude": true
+        }
+      },
+      "sourceSha256": "838442d801757fe89402e8bc20200a9fe931d0c1c443bfaff315d8587a0e0d28",
+      "passed": 6,
+      "total": 12,
+      "label": "north-no-thinking",
+      "completed": 12,
+      "complete": true,
+      "outcomes": [
+        {
+          "id": "count-text-files",
+          "passed": true,
+          "milliseconds": 1023
+        },
+        {
+          "id": "find-content",
+          "passed": false,
+          "milliseconds": 1114
+        },
+        {
+          "id": "copy-spaces",
+          "passed": true,
+          "milliseconds": 771
+        },
+        {
+          "id": "copy-unusual-filename",
+          "passed": true,
+          "milliseconds": 2202
+        },
+        {
+          "id": "newest-including-hidden",
+          "passed": false,
+          "milliseconds": 1675
+        },
+        {
+          "id": "empty-newest-fails",
+          "passed": false,
+          "milliseconds": 2303
+        },
+        {
+          "id": "delete-only-requested-file",
+          "passed": false,
+          "milliseconds": 1732
+        },
+        {
+          "id": "arithmetic",
+          "passed": true,
+          "milliseconds": 870
+        },
+        {
+          "id": "saved-tool-preference",
+          "passed": true,
+          "milliseconds": 5748
+        },
+        {
+          "id": "missing-transfer-destination",
+          "passed": false,
+          "milliseconds": 784
+        },
+        {
+          "id": "missing-delete-target",
+          "passed": false,
+          "milliseconds": 1171
+        },
+        {
+          "id": "line-count-with-spaces",
+          "passed": true,
+          "milliseconds": 1331
+        }
+      ]
+    },
+    {
+      "model": "cohere/north-mini-code:free",
+      "fixtureVersion": 2,
+      "generatedAt": "2026-11-06T01:15:39.376Z",
+      "generation": {
+        "temperature": 0,
+        "max_tokens": 16384,
+        "reasoning": {
+          "enabled": true,
+          "exclude": true
+        }
+      },
+      "sourceSha256": "052243739331fe2e81dba75fceca009b59ebfe3c9663477456d9b9559cb42b19",
+      "passed": 13,
+      "total": 16,
+      "label": "north-examples",
+      "completed": 16,
+      "complete": true,
+      "outcomes": [
+        {
+          "id": "count-text-files",
+          "passed": true,
+          "milliseconds": 10061
+        },
+        {
+          "id": "find-content",
+          "passed": false,
+          "milliseconds": 19692
+        },
+        {
+          "id": "copy-spaces",
+          "passed": true,
+          "milliseconds": 2072
+        },
+        {
+          "id": "copy-unusual-filename",
+          "passed": true,
+          "milliseconds": 22099
+        },
+        {
+          "id": "newest-including-hidden",
+          "passed": true,
+          "milliseconds": 51089
+        },
+        {
+          "id": "empty-newest-fails",
+          "passed": true,
+          "milliseconds": 8326
+        },
+        {
+          "id": "delete-only-requested-file",
+          "passed": true,
+          "milliseconds": 1658
+        },
+        {
+          "id": "arithmetic",
+          "passed": true,
+          "milliseconds": 2222
+        },
+        {
+          "id": "saved-tool-preference",
+          "passed": true,
+          "milliseconds": 2307
+        },
+        {
+          "id": "missing-transfer-destination",
+          "passed": true,
+          "milliseconds": 10440
+        },
+        {
+          "id": "missing-delete-target",
+          "passed": true,
+          "milliseconds": 3564
+        },
+        {
+          "id": "line-count-with-spaces",
+          "passed": true,
+          "milliseconds": 8946
+        },
+        {
+          "id": "count-with-no-matches",
+          "passed": true,
+          "milliseconds": 8624
+        },
+        {
+          "id": "literal-pattern-in-unusual-paths",
+          "passed": false,
+          "milliseconds": 32458
+        },
+        {
+          "id": "newest-name-is-not-sort-order",
+          "passed": false,
+          "milliseconds": 60089
+        },
+        {
+          "id": "different-arithmetic-operands",
+          "passed": true,
+          "milliseconds": 6730
+        }
+      ]
+    },
+    {
+      "model": "cohere/north-mini-code:free",
+      "fixtureVersion": 2,
+      "generatedAt": "2026-11-06T01:31:32.458Z",
+      "generation": {
+        "temperature": 0,
+        "max_tokens": 16384,
+        "reasoning": {
+          "enabled": true,
+          "exclude": true
+        }
+      },
+      "sourceSha256": "7af6e9bedb432f1ae11b45b423426c13e015fbf8a690ce78026c04316284028f",
+      "passed": 15,
+      "total": 16,
+      "label": "north-typed-counting",
+      "completed": 16,
+      "complete": true,
+      "outcomes": [
+        {
+          "id": "count-text-files",
+          "passed": true,
+          "milliseconds": 2908
+        },
+        {
+          "id": "find-content",
+          "passed": true,
+          "milliseconds": 7011
+        },
+        {
+          "id": "copy-spaces",
+          "passed": true,
+          "milliseconds": 4983
+        },
+        {
+          "id": "copy-unusual-filename",
+          "passed": false,
+          "milliseconds": 60095
+        },
+        {
+          "id": "newest-including-hidden",
+          "passed": true,
+          "milliseconds": 8932
+        },
+        {
+          "id": "empty-newest-fails",
+          "passed": true,
+          "milliseconds": 19020
+        },
+        {
+          "id": "delete-only-requested-file",
+          "passed": true,
+          "milliseconds": 6758
+        },
+        {
+          "id": "arithmetic",
+          "passed": true,
+          "milliseconds": 2963
+        },
+        {
+          "id": "saved-tool-preference",
+          "passed": true,
+          "milliseconds": 2527
+        },
+        {
+          "id": "missing-transfer-destination",
+          "passed": true,
+          "milliseconds": 2159
+        },
+        {
+          "id": "missing-delete-target",
+          "passed": true,
+          "milliseconds": 2628
+        },
+        {
+          "id": "line-count-with-spaces",
+          "passed": true,
+          "milliseconds": 6052
+        },
+        {
+          "id": "count-with-no-matches",
+          "passed": true,
+          "milliseconds": 1830
+        },
+        {
+          "id": "literal-pattern-in-unusual-paths",
+          "passed": true,
+          "milliseconds": 6519
+        },
+        {
+          "id": "newest-name-is-not-sort-order",
+          "passed": true,
+          "milliseconds": 6004
+        },
+        {
+          "id": "different-arithmetic-operands",
+          "passed": true,
+          "milliseconds": 3172
+        }
+      ]
+    },
+    {
+      "model": "cohere/north-mini-code:free",
+      "fixtureVersion": 2,
+      "generatedAt": "2026-11-06T01:36:19.081Z",
+      "generation": {
+        "temperature": 0,
+        "max_tokens": 16384,
+        "reasoning": {
+          "enabled": true,
+          "exclude": true
+        }
+      },
+      "sourceSha256": "bd02d4f78c27b0dc53994eec45884348aa11fa6f9b27b3300eb2e06c6980b50b",
+      "passed": 13,
+      "total": 16,
+      "label": "north-final",
+      "completed": 16,
+      "complete": true,
+      "outcomes": [
+        {
+          "id": "count-text-files",
+          "passed": true,
+          "milliseconds": 7887
+        },
+        {
+          "id": "find-content",
+          "passed": true,
+          "milliseconds": 2173
+        },
+        {
+          "id": "copy-spaces",
+          "passed": true,
+          "milliseconds": 4055
+        },
+        {
+          "id": "copy-unusual-filename",
+          "passed": false,
+          "milliseconds": 20980
+        },
+        {
+          "id": "newest-including-hidden",
+          "passed": true,
+          "milliseconds": 12231
+        },
+        {
+          "id": "empty-newest-fails",
+          "passed": true,
+          "milliseconds": 7951
+        },
+        {
+          "id": "delete-only-requested-file",
+          "passed": true,
+          "milliseconds": 2122
+        },
+        {
+          "id": "arithmetic",
+          "passed": true,
+          "milliseconds": 6841
+        },
+        {
+          "id": "saved-tool-preference",
+          "passed": true,
+          "milliseconds": 10808
+        },
+        {
+          "id": "missing-transfer-destination",
+          "passed": false,
+          "milliseconds": 2099
+        },
+        {
+          "id": "missing-delete-target",
+          "passed": false,
+          "milliseconds": 1765
+        },
+        {
+          "id": "line-count-with-spaces",
+          "passed": true,
+          "milliseconds": 5251
+        },
+        {
+          "id": "count-with-no-matches",
+          "passed": true,
+          "milliseconds": 1361
+        },
+        {
+          "id": "literal-pattern-in-unusual-paths",
+          "passed": true,
+          "milliseconds": 2642
+        },
+        {
+          "id": "newest-name-is-not-sort-order",
+          "passed": true,
+          "milliseconds": 3272
+        },
+        {
+          "id": "different-arithmetic-operands",
+          "passed": true,
+          "milliseconds": 2534
+        }
+      ]
+    },
+    {
+      "model": "cohere/north-mini-code:free",
+      "fixtureVersion": 2,
+      "generatedAt": "2026-11-06T01:45:27.955Z",
+      "generation": {
+        "temperature": 0,
+        "max_tokens": 16384,
+        "reasoning": {
+          "enabled": true,
+          "exclude": true
+        }
+      },
+      "sourceSha256": "105f1cb23b49be8356025ebf1ac3c215861501f17991888bb489e76e33113369",
+      "passed": 15,
+      "total": 16,
+      "label": "north-actions",
+      "completed": 16,
+      "complete": true,
+      "outcomes": [
+        {
+          "id": "count-text-files",
+          "passed": true,
+          "milliseconds": 2180
+        },
+        {
+          "id": "find-content",
+          "passed": true,
+          "milliseconds": 1063
+        },
+        {
+          "id": "copy-spaces",
+          "passed": true,
+          "milliseconds": 6316
+        },
+        {
+          "id": "copy-unusual-filename",
+          "passed": true,
+          "milliseconds": 1559
+        },
+        {
+          "id": "newest-including-hidden",
+          "passed": true,
+          "milliseconds": 7983
+        },
+        {
+          "id": "empty-newest-fails",
+          "passed": true,
+          "milliseconds": 8969
+        },
+        {
+          "id": "delete-only-requested-file",
+          "passed": true,
+          "milliseconds": 2322
+        },
+        {
+          "id": "arithmetic",
+          "passed": true,
+          "milliseconds": 4125
+        },
+        {
+          "id": "saved-tool-preference",
+          "passed": true,
+          "milliseconds": 2587
+        },
+        {
+          "id": "missing-transfer-destination",
+          "passed": true,
+          "milliseconds": 3790
+        },
+        {
+          "id": "missing-delete-target",
+          "passed": true,
+          "milliseconds": 1290
+        },
+        {
+          "id": "line-count-with-spaces",
+          "passed": true,
+          "milliseconds": 3185
+        },
+        {
+          "id": "count-with-no-matches",
+          "passed": true,
+          "milliseconds": 1891
+        },
+        {
+          "id": "literal-pattern-in-unusual-paths",
+          "passed": true,
+          "milliseconds": 1430
+        },
+        {
+          "id": "newest-name-is-not-sort-order",
+          "passed": false,
+          "milliseconds": 5538
+        },
+        {
+          "id": "different-arithmetic-operands",
+          "passed": true,
+          "milliseconds": 1872
+        }
+      ]
+    }
+  ]
+}

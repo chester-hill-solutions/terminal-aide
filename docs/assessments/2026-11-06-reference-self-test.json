@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "fixtureVersion": 2,
+  "model": "cohere/north-mini-code:free",
+  "generation": {
+    "temperature": 0,
+    "max_tokens": 16384,
+    "reasoning": {
+      "enabled": true,
+      "exclude": true
+    }
+  },
+  "sourceSha256": "d1c1a5a7a8cfef5b0fd64e33b99204261c62e78a66a94ac637bb560d8d9d085f",
+  "platform": "darwin",
+  "node": "v25.9.0",
+  "generatedAt": "2026-11-06T03:08:17.739Z",
+  "passed": 16,
+  "total": 16,
+  "completed": 16,
+  "complete": true,
+  "results": [
+    {
+      "id": "count-text-files",
+      "passed": true,
+      "milliseconds": 56,
+      "proposal": {
+        "command": "find . -type f -name '*.txt' -exec printf '1\\n' \\; | wc -l",
+        "explanation": "Synthetic reference proposal.",
+        "warnings": [],
+        "clarification": null
+      }
+    },
+    {
+      "id": "find-content",
+      "passed": true,
+      "milliseconds": 38,
+      "proposal": {
+        "command": "find . -type f -name '*.txt' -exec grep -h 'TODO' {} + | wc -l",
+        "explanation": "Synthetic reference proposal.",
+        "warnings": [],
+        "clarification": null
+      }
+    },
+    {
+      "id": "copy-spaces",
+      "passed": true,
+      "milliseconds": 32,
+      "proposal": {
+        "command": "cp './source note.txt' './copied note.txt'",
+        "explanation": "Synthetic reference proposal.",
+        "warnings": [],
+        "clarification": null
+      }
+    },
+    {
+      "id": "copy-unusual-filename",
+      "passed": true,
+      "milliseconds": 33,
+      "proposal": {
+        "command": "for f in ./incoming/*.txt; do [ -f \"$f\" ] && cp \"$f\" ./copied.txt; done",
+        "explanation": "Synthetic reference proposal.",
+        "warnings": [],
+        "clarification": null
+      }
+    },
+    {
+      "id": "newest-including-hidden",
+      "passed": true,
+      "milliseconds": 47,
+      "proposal": {
+        "command": "shopt -s nullglob dotglob; newest=; for f in ./Downloads/*; do [ -f \"$f\" ] || continue; if [ -z \"$newest\" ] || [ \"$f\" -nt \"$newest\" ]; then newest=$f; fi; done; [ -n \"$newest\" ] && cp \"$newest\" ./selected.txt",
+        "explanation": "Synthetic reference proposal.",
+        "warnings": [],
+        "clarification": null
+      }
+    },
+    {
+      "id": "empty-newest-fails",
+      "passed": true,
+      "milliseconds": 38,
+      "proposal": {
+        "command": "shopt -s nullglob dotglob; newest=; for f in ./Downloads/*; do [ -f \"$f\" ] || continue; if [ -z \"$newest\" ] || [ \"$f\" -nt \"$newest\" ]; then newest=$f; fi; done; [ -n \"$newest\" ] || exit 1; cp \"$newest\" ./selected.txt",
+        "explanation": "Synthetic reference proposal.",
+        "warnings": [],
+        "clarification": null
+      }
+    },
+    {
+      "id": "delete-only-requested-file",
+      "passed": true,
+      "milliseconds": 27,
+      "proposal": {
+        "command": "rm ./obsolete.txt",
+        "explanation": "Synthetic reference proposal.",
+        "warnings": [
+          "This deletes the requested file."
+        ],
+        "clarification": null
+      }
+    },
+    {
+      "id": "arithmetic",
+      "passed": true,
+      "milliseconds": 19,
+      "proposal": {
+        "command": "printf \"%s\\n\" \"$((12 * 4))\"",
+        "explanation": "Synthetic reference proposal.",
+        "warnings": [],
+        "clarification": null
+      }
+    },
+    {
+      "id": "saved-tool-preference",
+      "passed": true,
+      "milliseconds": 21,
+      "proposal": {
+        "command": "awk 'BEGIN { print sqrt(144) }'",
+        "explanation": "Synthetic reference proposal.",
+        "warnings": [],
+        "clarification": null
+      }
+    },
+    {
+      "id": "missing-transfer-destination",
+      "passed": true,
+      "milliseconds": 1,
+      "proposal": {
+        "command": null,
+        "explanation": "Synthetic reference proposal.",
+        "warnings": [],
+        "clarification": "Which file, host, or destination?"
+      }
+    },
+    {
+      "id": "missing-delete-target",
+      "passed": true,
+      "milliseconds": 1,
+      "proposal": {
+        "command": null,
+        "explanation": "Synthetic reference proposal.",
+        "warnings": [],
+        "clarification": "Which file, host, or destination?"
+      }
+    },
+    {
+      "id": "line-count-with-spaces",
+      "passed": true,
+      "milliseconds": 21,
+      "proposal": {
+        "command": "wc -l < './source note.txt'",
+        "explanation": "Synthetic reference proposal.",
+        "warnings": [],
+        "clarification": null
+      }
+    },
+    {
+      "id": "count-with-no-matches",
+      "passed": true,
+      "milliseconds": 24,
+      "proposal": {
+        "command": "find . -type f -name '*.txt' -print0 | tr -cd '\\000' | wc -c",
+        "explanation": "Synthetic reference proposal.",
+        "warnings": [],
+        "clarification": null
+      }
+    },
+    {
+      "id": "literal-pattern-in-unusual-paths",
+      "passed": true,
+      "milliseconds": 25,
+      "proposal": {
+        "command": "find . -type f -name '*.log' -exec awk 'index($0, \"[ok]\") {n++} END {print n+0}' {} + | awk '{n += $1} END {print n+0}'",
+        "explanation": "Synthetic reference proposal.",
+        "warnings": [],
+        "clarification": null
+      }
+    },
+    {
+      "id": "newest-name-is-not-sort-order",
+      "passed": true,
+      "milliseconds": 24,
+      "proposal": {
+        "command": "shopt -s nullglob dotglob; newest=; for f in ./incoming/*; do [ -f \"$f\" ] || continue; if [ -z \"$newest\" ] || [ \"$f\" -nt \"$newest\" ]; then newest=$f; fi; done; [ -n \"$newest\" ] && cp \"$newest\" ./archive-picked.dat",
+        "explanation": "Synthetic reference proposal.",
+        "warnings": [],
+        "clarification": null
+      }
+    },
+    {
+      "id": "different-arithmetic-operands",
+      "passed": true,
+      "milliseconds": 19,
+      "proposal": {
+        "command": "printf \"%s\\n\" \"$((341 * 19))\"",
+        "explanation": "Synthetic reference proposal.",
+        "warnings": [],
+        "clarification": null
+      }
+    }
+  ],
+  "mode": "reference-self-test",
+  "requiredPassRate": 1
+}
