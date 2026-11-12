@@ -72,6 +72,6 @@
     "@chester-hill-solutions/ratchet-strap": "file:tools/vendor/chester-hill-solutions-ratchet-strap-0.4.0.tgz",
     "@eslint/js": "10.0.1",
     "eslint": "10.14.0",
-    "globals": "16.5.0"
+    "globals": "17.14.0"
   }
 }
